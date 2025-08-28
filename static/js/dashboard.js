@@ -125,8 +125,7 @@ function addPlayer() {
     
     const playerData = {
         name: $('#playerName').val().trim(),
-        alliance_id: $('#playerAlliance').val() || null,
-        is_active: $('#playerActive').is(':checked')
+        alliance_id: $('#playerAlliance').val() || null
     };
     
     apiCall('POST', '/api/players/', playerData)
@@ -147,7 +146,6 @@ function editPlayer(playerId) {
     $('#editPlayerId').val(player.id);
     $('#editPlayerName').val(player.name);
     $('#editPlayerAlliance').val(player.alliance?.id || '');
-    $('#editPlayerActive').prop('checked', player.is_active);
     
     loadAllianceOptions('editPlayerAlliance');
     $('#editPlayerModal').modal('show');
@@ -162,8 +160,7 @@ function updatePlayer() {
     const playerId = $('#editPlayerId').val();
     const playerData = {
         name: $('#editPlayerName').val().trim(),
-        alliance_id: $('#editPlayerAlliance').val() || null,
-        is_active: $('#editPlayerActive').is(':checked')
+        alliance_id: $('#editPlayerAlliance').val() || null
     };
     
     apiCall('PUT', `/api/players/${playerId}`, playerData)
@@ -489,9 +486,7 @@ function addEvent() {
     
     const eventData = {
         name: $('#eventName').val().trim(),
-        event_date: $('#eventDate').val(),
-        description: $('#eventDescription').val().trim(),
-        status: $('#eventStatus').val()
+        event_date: $('#eventDate').val()
     };
     
     apiCall('POST', '/api/events/', eventData)
@@ -512,8 +507,6 @@ function editEvent(eventId) {
     $('#editEventId').val(event.id);
     $('#editEventName').val(event.name);
     $('#editEventDate').val(event.event_date);
-    $('#editEventDescription').val(event.description || '');
-    $('#editEventStatus').val(event.status);
     
     $('#editEventModal').modal('show');
 }
@@ -527,9 +520,7 @@ function updateEvent() {
     const eventId = $('#editEventId').val();
     const eventData = {
         name: $('#editEventName').val().trim(),
-        event_date: $('#editEventDate').val(),
-        description: $('#editEventDescription').val().trim(),
-        status: $('#editEventStatus').val()
+        event_date: $('#editEventDate').val()
     };
     
     apiCall('PUT', `/api/events/${eventId}`, eventData)
@@ -569,9 +560,7 @@ function assignMVP(eventId, eventName) {
         .then(candidates => {
             let html = '<option value="">Choose player...</option>';
             candidates.forEach(candidate => {
-                const priority = candidate.priority === 'high' ? ' (Recommended)' : '';
-                const allianceInfo = candidate.alliance ? ` - ${candidate.alliance.name}` : '';
-                html += `<option value="${candidate.id}">${candidate.name}${allianceInfo}${priority}</option>`;
+                html += `<option value="${candidate.id}">${candidate.name}</option>`;
             });
             $('#mvpPlayer').html(html);
         })
@@ -707,33 +696,21 @@ function loadMVPCandidates() {
                 html = '<p class="text-muted text-center">No active players found</p>';
             } else {
                 candidates.forEach(candidate => {
-                    const priorityClass = candidate.priority === 'high' ? 'priority-high' : 'priority-low';
-                    const allianceInfo = candidate.alliance ? 
-                        `<small class="text-muted">${candidate.alliance.name}${candidate.alliance.tag ? ` ${candidate.alliance.tag}` : ''}</small>` : 
-                        '<small class="text-muted">No Alliance</small>';
-                    
                     html += `
-                        <div class="card mb-2 ${priorityClass}">
+                        <div class="card mb-2">
                             <div class="card-body py-2">
                                 <div class="row align-items-center">
                                     <div class="col-md-4">
                                         <strong>${candidate.name}</strong>
                                         ${getMVPIcon(candidate.mvp_count > 0)}
-                                        <br>
-                                        ${allianceInfo}
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="col-md-4">
                                         <small class="text-muted">MVP Count:</small><br>
                                         <span class="badge bg-primary">${candidate.mvp_count}</span>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <small class="text-muted">Last MVP:</small><br>
                                         ${formatDate(candidate.last_mvp_date)}
-                                    </div>
-                                    <div class="col-md-3">
-                                        <small class="text-muted">Priority:</small><br>
-                                        <span class="badge ${candidate.priority === 'high' ? 'bg-success' : 'bg-warning'}">${candidate.priority}</span>
-                                        ${candidate.has_been_mvp_this_cycle ? '<i class="fas fa-check text-success ms-1" title="Been MVP this cycle"></i>' : ''}
                                     </div>
                                 </div>
                             </div>
