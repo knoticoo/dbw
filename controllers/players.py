@@ -17,7 +17,7 @@ def get_players():
     cursor = conn.cursor()
     
     cursor.execute('''
-        SELECT p.id, p.name, p.is_active, p.mvp_count, p.last_mvp_date,
+        SELECT p.id, p.name, p.is_active, p.mvp_count, p.mvp_points, p.last_mvp_date, p.last_mvp_type,
                a.name as alliance_name, a.tag as alliance_tag, a.id as alliance_id
         FROM players p
         LEFT JOIN alliances a ON p.alliance_id = a.id
@@ -31,7 +31,9 @@ def get_players():
             'name': row['name'],
             'is_active': bool(row['is_active']),
             'mvp_count': row['mvp_count'],
+            'mvp_points': row['mvp_points'],
             'last_mvp_date': row['last_mvp_date'],
+            'last_mvp_type': row['last_mvp_type'],
             'alliance': {
                 'id': row['alliance_id'],
                 'name': row['alliance_name'],

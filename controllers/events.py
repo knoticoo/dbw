@@ -19,12 +19,14 @@ def get_events():
     cursor = conn.cursor()
     
     query = '''
-        SELECT e.id, e.name, e.description, e.event_date, e.status,
+        SELECT e.id, e.name, e.description, e.event_date, e.status, e.mvp_type,
                p.name as mvp_name, p.id as mvp_id,
-               a.name as winner_alliance_name, a.id as winner_alliance_id, a.tag as winner_alliance_tag
+               a.name as winner_alliance_name, a.id as winner_alliance_id, a.tag as winner_alliance_tag,
+               mt.icon_class as mvp_icon, mt.color_class as mvp_color, mt.points as mvp_points
         FROM events e
         LEFT JOIN players p ON e.mvp_player_id = p.id
         LEFT JOIN alliances a ON e.winner_alliance_id = a.id
+        LEFT JOIN mvp_types mt ON e.mvp_type = mt.name
     '''
     
     params = []
@@ -46,7 +48,11 @@ def get_events():
             'status': row['status'],
             'mvp': {
                 'id': row['mvp_id'],
-                'name': row['mvp_name']
+                'name': row['mvp_name'],
+                'type': row['mvp_type'],
+                'icon': row['mvp_icon'],
+                'color': row['mvp_color'],
+                'points': row['mvp_points']
             } if row['mvp_id'] else None,
             'winner_alliance': {
                 'id': row['winner_alliance_id'],

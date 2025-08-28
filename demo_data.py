@@ -36,24 +36,24 @@ def add_demo_data():
     
     # Add sample players
     players = [
-        ("KingArthur", "Dragon Lords", 2, "2024-01-15"),
-        ("QueenElsa", "Dragon Lords", 1, "2024-01-20"),
-        ("LordStark", "Shadow Knights", 3, "2024-01-10"),
-        ("LadyGaga", "Shadow Knights", 0, None),
-        ("CaptainAmerica", "Golden Eagles", 1, "2024-01-25"),
-        ("WonderWoman", "Golden Eagles", 2, "2024-01-05"),
-        ("Wolverine", "Crystal Guardians", 1, "2024-01-18"),
-        ("StormBreaker", None, 0, None),  # No alliance
-        ("PhoenixRider", None, 1, "2024-01-22"),  # No alliance
-        ("DragonSlayer", "Iron Wolves", 0, None),  # In blacklisted alliance
+        ("KingArthur", "Dragon Lords", 2, 8, "2024-01-15", "Duke"),  # 5 + 3 points
+        ("QueenElsa", "Dragon Lords", 1, 1, "2024-01-20", "Simple"),
+        ("LordStark", "Shadow Knights", 3, 7, "2024-01-10", "Earl"),  # 3 + 3 + 1 points
+        ("LadyGaga", "Shadow Knights", 0, 0, None, None),
+        ("CaptainAmerica", "Golden Eagles", 1, 1, "2024-01-25", "Simple"),
+        ("WonderWoman", "Golden Eagles", 2, 8, "2024-01-05", "Duke"),  # 5 + 3 points
+        ("Wolverine", "Crystal Guardians", 1, 1, "2024-01-18", "Simple"),
+        ("StormBreaker", None, 0, 0, None, None),  # No alliance
+        ("PhoenixRider", None, 1, 1, "2024-01-22", "Simple"),  # No alliance
+        ("DragonSlayer", "Iron Wolves", 0, 0, None, None),  # In blacklisted alliance
     ]
     
-    for name, alliance_name, mvp_count, last_mvp in players:
+    for name, alliance_name, mvp_count, mvp_points, last_mvp, last_mvp_type in players:
         alliance_id = alliance_map.get(alliance_name) if alliance_name else None
         cursor.execute('''
-            INSERT OR IGNORE INTO players (name, alliance_id, mvp_count, last_mvp_date, is_active)
-            VALUES (?, ?, ?, ?, 1)
-        ''', (name, alliance_id, mvp_count, last_mvp))
+            INSERT OR IGNORE INTO players (name, alliance_id, mvp_count, mvp_points, last_mvp_date, last_mvp_type, is_active)
+            VALUES (?, ?, ?, ?, ?, ?, 1)
+        ''', (name, alliance_id, mvp_count, mvp_points, last_mvp, last_mvp_type))
     
     # Get player IDs
     cursor.execute('SELECT id, name FROM players')
@@ -61,22 +61,22 @@ def add_demo_data():
     
     # Add sample events
     events = [
-        ("Winter Tournament", "2024-01-15", "Annual winter competition", "completed", "KingArthur", "Dragon Lords"),
-        ("Spring Festival", "2024-02-20", "Celebration and friendly competition", "completed", "LordStark", "Shadow Knights"),
-        ("Summer War Games", "2024-03-25", "Major alliance warfare event", "completed", "WonderWoman", "Golden Eagles"),
-        ("Autumn Harvest", "2024-04-15", "Resource gathering competition", "ongoing", "Wolverine", None),
-        ("New Year Championship", "2024-12-31", "Year-end grand tournament", "upcoming", None, None),
-        ("Valentine's Day Special", "2024-02-14", "Love-themed mini games", "upcoming", None, None),
+        ("Winter Tournament", "2024-01-15", "Annual winter competition", "completed", "KingArthur", "Dragon Lords", "Duke"),
+        ("Spring Festival", "2024-02-20", "Celebration and friendly competition", "completed", "LordStark", "Shadow Knights", "Earl"),
+        ("Summer War Games", "2024-03-25", "Major alliance warfare event", "completed", "WonderWoman", "Golden Eagles", "Duke"),
+        ("Autumn Harvest", "2024-04-15", "Resource gathering competition", "ongoing", "Wolverine", None, "Simple"),
+        ("New Year Championship", "2024-12-31", "Year-end grand tournament", "upcoming", None, None, "Simple"),
+        ("Valentine's Day Special", "2024-02-14", "Love-themed mini games", "upcoming", None, None, "Simple"),
     ]
     
-    for name, date, desc, status, mvp_name, winner_name in events:
+    for name, date, desc, status, mvp_name, winner_name, mvp_type in events:
         mvp_id = player_map.get(mvp_name) if mvp_name else None
         winner_id = alliance_map.get(winner_name) if winner_name else None
         
         cursor.execute('''
-            INSERT OR IGNORE INTO events (name, event_date, description, status, mvp_player_id, winner_alliance_id)
-            VALUES (?, ?, ?, ?, ?, ?)
-        ''', (name, date, desc, status, mvp_id, winner_id))
+            INSERT OR IGNORE INTO events (name, event_date, description, status, mvp_player_id, winner_alliance_id, mvp_type)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (name, date, desc, status, mvp_id, winner_id, mvp_type))
     
     # Initialize MVP rotation for current cycle
     cursor.execute('SELECT id FROM players WHERE is_active = 1')

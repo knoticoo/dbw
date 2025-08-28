@@ -47,8 +47,12 @@ function displayPlayers(players) {
                     <td>${allianceInfo}</td>
                     <td>
                         <span class="badge bg-primary">${player.mvp_count}</span>
+                        <small class="text-muted d-block">${player.mvp_points || 0} pts</small>
                     </td>
-                    <td>${formatDate(player.last_mvp_date)}</td>
+                    <td>
+                        ${formatDate(player.last_mvp_date)}
+                        ${player.last_mvp_type ? `<small class="text-muted d-block">${player.last_mvp_type}</small>` : ''}
+                    </td>
                     <td>${getStatusBadge(player.is_active)}</td>
                     <td>
                         <button class="btn btn-sm btn-outline-primary" onclick="editPlayer(${player.id})" title="Edit">
@@ -338,7 +342,7 @@ function displayEvents(events) {
     } else {
         events.forEach(event => {
             const mvpInfo = event.mvp ? 
-                `${event.mvp.name} ${getMVPIcon(true)}` : 
+                `${event.mvp.name} <span class="${event.mvp.color}"><i class="${event.mvp.icon}"></i> ${event.mvp.type}</span>` : 
                 '<span class="text-muted">Not Assigned</span>';
             
             const winnerInfo = event.winner_alliance ? 
@@ -472,24 +476,44 @@ function assignMVP(eventId, eventName) {
             handleApiError(error, 'Failed to load MVP candidates');
         });
     
+    // Load MVP types
+    apiCall('GET', '/api/mvp/types')
+        .then(types => {
+            let html = '<option value="">Choose MVP type...</option>';
+            types.forEach(type => {
+                html += `<option value="${type.name}">
+                    ${type.name} (${type.points} points) - ${type.description}
+                </option>`;
+            });
+            $('#mvpType').html(html);
+        })
+        .catch(error => {
+            handleApiError(error, 'Failed to load MVP types');
+        });
+    
     $('#assignMVPModal').modal('show');
 }
 
 function assignEventMVP() {
     if (!validateForm('assignMVPForm')) {
-        showToast('Please select a player', 'warning');
+        showToast('Please select a player and MVP type', 'warning');
         return;
     }
     
     const eventId = $('#mvpEventId').val();
     const playerId = $('#mvpPlayer').val();
+    const mvpType = $('#mvpType').val();
     
-    apiCall('POST', `/api/mvp/assign/${eventId}`, { player_id: parseInt(playerId) })
+    apiCall('POST', `/api/mvp/assign/${eventId}`, { 
+        player_id: parseInt(playerId),
+        mvp_type: mvpType
+    })
         .then(response => {
             showToast('MVP assigned successfully', 'success');
             $('#assignMVPModal').modal('hide');
             loadEvents();
             loadMVPSection();
+            loadPlayers(); // Refresh to show updated points
         })
         .catch(error => {
             handleApiError(error, 'Failed to assign MVP');

@@ -9,6 +9,7 @@ A comprehensive web application for managing alliances, players, events, and MVP
 - **Alliance Control**: Create and manage alliances with blacklist functionality  
 - **Event Tracking**: Create events and track competitions with detailed history
 - **MVP Rotation**: Fair MVP assignment with automatic rotation system
+- **MVP Types**: Three MVP tiers (Simple, Earl, Duke) with different point values
 - **Winner Assignment**: Assign alliance winners to events with win tracking
 - **Strategy Guides**: Built-in guides and documentation system
 
@@ -77,8 +78,12 @@ A comprehensive web application for managing alliances, players, events, and MVP
 ### MVP Rotation
 1. Visit Dashboard → MVP System
 2. View rotation status and next candidates
-3. System automatically ensures fair MVP distribution
-4. Reset rotation cycles when needed
+3. Assign MVPs with three types:
+   - **Simple MVP** (1 point) - Standard recognition
+   - **Earl MVP** (3 points) - Enhanced recognition  
+   - **Duke MVP** (5 points) - Highest recognition
+4. System automatically ensures fair MVP distribution
+5. Reset rotation cycles when needed
 
 ## 🗂️ Project Structure
 
@@ -158,10 +163,14 @@ A comprehensive web application for managing alliances, players, events, and MVP
 ## 🎨 Icons & Visual Elements
 
 The system uses Font Awesome icons for visual clarity:
-- 🏆 **MVP Icon**: Golden trophy for MVP players
+- 🏆 **MVP Icons**: 
+  - Simple MVP: Golden trophy (🏆)
+  - Earl MVP: Blue crown (👑) 
+  - Duke MVP: Red king piece (♔)
 - 👑 **Winner Icon**: Crown for winning alliances  
 - 🚫 **Blacklist Icon**: Ban icon for blacklisted alliances
 - ⭐ **Status Badges**: Color-coded status indicators
+- 📊 **Point System**: Visual point tracking for MVP achievements
 
 ## 🔧 Customization
 
@@ -206,19 +215,22 @@ The system uses Font Awesome icons for visual clarity:
 ## 📊 Database Schema
 
 ### Players Table
-- id, name, alliance_id, is_active, mvp_count, last_mvp_date, timestamps
+- id, name, alliance_id, is_active, mvp_count, mvp_points, last_mvp_date, last_mvp_type, timestamps
 
 ### Alliances Table  
 - id, name, tag, description, is_blacklisted, wins_count, timestamps
 
 ### Events Table
-- id, name, description, event_date, status, mvp_player_id, winner_alliance_id, timestamps
+- id, name, description, event_date, status, mvp_player_id, mvp_type, winner_alliance_id, timestamps
 
 ### MVP Rotation Table
 - id, player_id, rotation_cycle, has_been_mvp, timestamp
 
 ### Event History Table
 - id, event_id, action, details, timestamp
+
+### MVP Types Table
+- id, name, points, description, icon_class, color_class, order_index
 
 ### Guides Table
 - id, title, content, category, order_index, is_published, timestamps

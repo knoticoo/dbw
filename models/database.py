@@ -28,7 +28,9 @@ def init_db():
             alliance_id INTEGER,
             is_active BOOLEAN DEFAULT 1,
             mvp_count INTEGER DEFAULT 0,
+            mvp_points INTEGER DEFAULT 0,
             last_mvp_date DATE,
+            last_mvp_type TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (alliance_id) REFERENCES alliances (id)
@@ -58,6 +60,7 @@ def init_db():
             event_date DATE NOT NULL,
             status TEXT DEFAULT 'upcoming',
             mvp_player_id INTEGER,
+            mvp_type TEXT DEFAULT 'Simple',
             winner_alliance_id INTEGER,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -75,6 +78,19 @@ def init_db():
             has_been_mvp BOOLEAN DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (player_id) REFERENCES players (id)
+        )
+    ''')
+    
+    # MVP types table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS mvp_types (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            points INTEGER DEFAULT 1,
+            description TEXT,
+            icon_class TEXT,
+            color_class TEXT,
+            order_index INTEGER DEFAULT 0
         )
     ''')
     
@@ -111,6 +127,15 @@ def init_db():
     cursor.execute('CREATE INDEX IF NOT EXISTS idx_events_winner ON events(winner_alliance_id)')
     cursor.execute('CREATE INDEX IF NOT EXISTS idx_alliances_blacklisted ON alliances(is_blacklisted)')
     
+    # Insert default MVP types
+    cursor.execute('''
+        INSERT OR IGNORE INTO mvp_types (name, points, description, icon_class, color_class, order_index)
+        VALUES 
+        ('Simple', 1, 'Basic MVP recognition for standard performance', 'fas fa-trophy', 'text-warning', 1),
+        ('Earl', 3, 'Enhanced MVP recognition for excellent performance', 'fas fa-crown', 'text-primary', 2),
+        ('Duke', 5, 'Highest MVP recognition for outstanding performance', 'fas fa-chess-king', 'text-danger', 3)
+    ''')
+    
     # Insert default guides
     cursor.execute('''
         INSERT OR IGNORE INTO guides (title, content, category, order_index)
@@ -119,7 +144,8 @@ def init_db():
         ('Managing Players', 'Add players to the system and assign them to alliances. Track their MVP history and performance.', 'players', 2),
         ('Event Management', 'Create events, assign MVPs, and track alliance winners. The system automatically rotates MVP assignments.', 'events', 3),
         ('Alliance System', 'Manage alliances, track wins, and maintain blacklists for problematic alliances.', 'alliances', 4),
-        ('MVP Rotation', 'The system ensures fair MVP rotation - once all players have been MVP, the cycle resets automatically.', 'mvp', 5)
+        ('MVP Rotation', 'The system ensures fair MVP rotation - once all players have been MVP, the cycle resets automatically.', 'mvp', 5),
+        ('MVP Types', 'MVP assignments come in three tiers: Simple (1 point), Earl (3 points), and Duke (5 points). Higher tiers recognize exceptional performance.', 'mvp', 6)
     ''')
     
     conn.commit()

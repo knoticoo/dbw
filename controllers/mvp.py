@@ -18,6 +18,8 @@ def assign_mvp(event_id):
     if not data or 'player_id' not in data:
         return jsonify({'error': 'Player ID is required'}), 400
     
+    mvp_type = data.get('mvp_type', 'Simple')
+    
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -36,19 +38,28 @@ def assign_mvp(event_id):
         return jsonify({'error': 'Player not found or inactive'}), 404
     
     try:
-        # Update event with MVP
+        # Get MVP type points
+        cursor.execute('SELECT points FROM mvp_types WHERE name = ?', (mvp_type,))
+        mvp_points = cursor.fetchone()
+        points = mvp_points[0] if mvp_points else 1
+        
+        # Update event with MVP and type
         cursor.execute('''
             UPDATE events 
-            SET mvp_player_id = ?, updated_at = ?
+            SET mvp_player_id = ?, mvp_type = ?, updated_at = ?
             WHERE id = ?
-        ''', (data['player_id'], datetime.now(), event_id))
+        ''', (data['player_id'], mvp_type, datetime.now(), event_id))
         
-        # Update player MVP count and last MVP date
+        # Update player MVP count, points, and last MVP info
         cursor.execute('''
             UPDATE players 
-            SET mvp_count = mvp_count + 1, last_mvp_date = ?, updated_at = ?
+            SET mvp_count = mvp_count + 1, 
+                mvp_points = mvp_points + ?,
+                last_mvp_date = ?, 
+                last_mvp_type = ?,
+                updated_at = ?
             WHERE id = ?
-        ''', (datetime.now().date(), datetime.now(), data['player_id']))
+        ''', (points, datetime.now().date(), mvp_type, datetime.now(), data['player_id']))
         
         # Update MVP rotation tracking
         cursor.execute('SELECT MAX(rotation_cycle) FROM mvp_rotation')
@@ -72,7 +83,7 @@ def assign_mvp(event_id):
         cursor.execute('''
             INSERT INTO event_history (event_id, action, details)
             VALUES (?, 'mvp_assigned', ?)
-        ''', (event_id, f"Player '{player['name']}' assigned as MVP"))
+        ''', (event_id, f"Player '{player['name']}' assigned as {mvp_type} MVP ({points} points)"))
         
         conn.commit()
         
@@ -303,3 +314,28 @@ def get_mvp_stats():
         'overall': overall_stats,
         'top_mvps': top_mvps
     })
+
+@mvp_bp.route('/types', methods=['GET'])
+def get_mvp_types():
+    """Get all MVP types"""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        SELECT name, points, description, icon_class, color_class
+        FROM mvp_types
+        ORDER BY order_index ASC
+    ''')
+    
+    types = []
+    for row in cursor.fetchall():
+        types.append({
+            'name': row['name'],
+            'points': row['points'],
+            'description': row['description'],
+            'icon': row['icon_class'],
+            'color': row['color_class']
+        })
+    
+    conn.close()
+    return jsonify(types)

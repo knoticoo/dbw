@@ -53,6 +53,22 @@ body {
     margin-right: 5px;
 }
 
+.mvp-simple {
+    color: #ffc107;
+    font-size: 1.1em;
+}
+
+.mvp-earl {
+    color: #007bff;
+    font-size: 1.2em;
+}
+
+.mvp-duke {
+    color: #dc3545;
+    font-size: 1.3em;
+    text-shadow: 0 0 3px rgba(220, 53, 69, 0.3);
+}
+
 .winner-icon {
     color: #28a745;
     font-size: 1.2em;
