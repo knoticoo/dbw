@@ -60,7 +60,7 @@ fi
 
 # Start the application
 echo "🚀 Starting Kings Choice Alliance Management..."
-echo "📍 Access the application at: http://localhost:5000"
+echo "📍 Access the application at: http://localhost:5002"
 echo "🛑 Press Ctrl+C to stop the server"
 echo ""
 python3 run.py
