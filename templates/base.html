@@ -272,6 +272,14 @@
         if (isPWA()) {
             document.body.classList.add('pwa-mode');
             console.log('Running as PWA');
+            
+            // Update mobile status indicator
+            const statusElement = document.getElementById('mobile-app-status');
+            if (statusElement) {
+                statusElement.textContent = 'PWA Mode';
+                statusElement.parentElement.classList.remove('text-white-50');
+                statusElement.parentElement.classList.add('text-success');
+            }
         }
         
         // Handle online/offline status
