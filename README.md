@@ -1,4 +1,4 @@
-# 🏰 Kings Choice Alliance Management System
+# 🐉 Dragon World Alliance Management System
 
 A comprehensive web application for managing alliances, players, events, and MVP rotations in the Kings Choice game.
 

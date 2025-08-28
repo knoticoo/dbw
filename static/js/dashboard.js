@@ -1,5 +1,5 @@
 /**
- * Kings Choice Alliance Management - Dashboard JavaScript
+ * Dragon World - Dashboard JavaScript
  * Handles all dashboard functionality
  */
 
@@ -12,17 +12,100 @@ $(document).ready(function() {
     
     // Setup image preview handlers
     setupImagePreviews();
+    
+    // Initialize TinyMCE for guide editors
+    initializeTinyMCE();
 });
+
+function initializeTinyMCE() {
+    // Initialize TinyMCE for guide content editors
+    tinymce.init({
+        selector: '.guide-editor',
+        height: 400,
+        menubar: false,
+        plugins: [
+            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+            'insertdatetime', 'media', 'table', 'help', 'wordcount'
+        ],
+        toolbar: 'undo redo | blocks | bold italic forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | removeformat | help',
+        content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif; font-size: 14px; }',
+        setup: function (editor) {
+            // Add custom image insert button
+            editor.ui.registry.addButton('insertUploadedImage', {
+                text: 'Insert Image',
+                icon: 'image',
+                onAction: function () {
+                    showImageInsertDialog(editor);
+                }
+            });
+            
+            // Add the custom button to toolbar
+            editor.settings.toolbar += ' | insertUploadedImage';
+        }
+    });
+}
+
+function showImageInsertDialog(editor) {
+    // Get uploaded images for the current modal
+    const modalId = $(editor.getElement()).closest('.modal').attr('id');
+    const isEditModal = modalId === 'editGuideModal';
+    const imageContainer = isEditModal ? '#editImagePreview' : '#imagePreview';
+    const images = $(imageContainer).find('img');
+    
+    if (images.length === 0) {
+        alert('Please upload some images first to insert them into your content.');
+        return;
+    }
+    
+    // Create image selection dialog
+    let imageOptions = '';
+    images.each(function(index) {
+        const src = $(this).attr('src');
+        const filename = $(this).closest('.card').find('.text-muted').text();
+        imageOptions += `<option value="${src}">${filename}</option>`;
+    });
+    
+    const dialogHtml = `
+        <div class="mb-3">
+            <label class="form-label">Select Image to Insert:</label>
+            <select class="form-select" id="imageSelectDialog">
+                <option value="">Choose an image...</option>
+                ${imageOptions}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Alt Text (optional):</label>
+            <input type="text" class="form-control" id="imageAltText" placeholder="Describe the image">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Alignment:</label>
+            <select class="form-select" id="imageAlignment">
+                <option value="">None</option>
+                <option value="left">Left</option>
+                <option value="center">Center</option>
+                <option value="right">Right</option>
+            </select>
+        </div>
+    `;
+    
+    // Use a simple confirm dialog for now (can be enhanced with a proper modal later)
+    const selectedSrc = prompt('Enter the image URL to insert (you can find URLs in the image preview section):');
+    if (selectedSrc) {
+        const altText = prompt('Enter alt text for the image (optional):') || '';
+        editor.insertContent(`<img src="${selectedSrc}" alt="${altText}" style="max-width: 100%; height: auto;" />`);
+    }
+}
 
 function setupImagePreviews() {
     // Handle image preview for add guide modal
     $('#guideImages').on('change', function() {
-        previewImages(this, '#imagePreview');
+        previewImagesWithInsert(this, '#imagePreview', '#imageInsertButtons');
     });
     
     // Handle image preview for edit guide modal
     $('#editGuideImages').on('change', function() {
-        previewImages(this, '#editImagePreview');
+        previewImagesWithInsert(this, '#editImagePreview', '#editImageInsertButtons');
     });
 }
 
@@ -55,6 +138,69 @@ function previewImages(input, previewContainer) {
         });
         
         container.append(imageRow);
+    }
+}
+
+function previewImagesWithInsert(input, previewContainer, insertButtonContainer) {
+    const container = $(previewContainer);
+    const buttonContainer = $(insertButtonContainer);
+    container.empty();
+    buttonContainer.empty();
+    
+    if (input.files && input.files.length > 0) {
+        container.append('<h6>Image Preview:</h6>');
+        const imageRow = $('<div class="row"></div>');
+        
+        Array.from(input.files).forEach((file, index) => {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageCol = $(`
+                        <div class="col-md-3 mb-2">
+                            <div class="card">
+                                <img src="${e.target.result}" class="card-img-top" style="height: 100px; object-fit: cover;" data-src="${e.target.result}">
+                                <div class="card-body p-2">
+                                    <small class="text-muted">${file.name}</small>
+                                    <button class="btn btn-sm btn-primary w-100 mt-1 insert-image-btn" 
+                                            data-src="${e.target.result}" 
+                                            data-filename="${file.name}">
+                                        <i class="fas fa-plus"></i> Insert into Content
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                    imageRow.append(imageCol);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        container.append(imageRow);
+        
+        // Add event handlers for insert buttons
+        setTimeout(() => {
+            container.find('.insert-image-btn').on('click', function() {
+                const src = $(this).data('src');
+                const filename = $(this).data('filename');
+                insertImageIntoEditor(src, filename);
+            });
+        }, 100);
+    }
+}
+
+function insertImageIntoEditor(src, filename) {
+    // Find the active TinyMCE editor in the current modal
+    const activeModal = $('.modal:visible');
+    const editorId = activeModal.find('.guide-editor').attr('id');
+    const editor = tinymce.get(editorId);
+    
+    if (editor) {
+        const altText = filename.replace(/\.[^/.]+$/, ""); // Remove file extension for alt text
+        editor.insertContent(`<p><img src="${src}" alt="${altText}" style="max-width: 100%; height: auto; display: block; margin: 10px 0;" /></p>`);
+        showToast('Image inserted into content!', 'success');
+    } else {
+        showToast('Could not find active editor. Please try again.', 'warning');
     }
 }
 
@@ -202,18 +348,18 @@ function deletePlayer(playerId, playerName) {
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title text-danger">
-                            <i class="fas fa-exclamation-triangle me-2"></i>Delete Player: ${playerName}
+                            <i class="fas fa-exclamation-triangle me-2"></i>Delete Player: ${escapeHtml(playerName)}
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
                         <p>Choose how to handle this player:</p>
                         <div class="d-grid gap-2">
-                            <button class="btn btn-warning" onclick="deactivatePlayer(${playerId}, '${playerName}')">
+                            <button class="btn btn-warning" data-action="deactivate" data-player-id="${playerId}" data-player-name="${escapeHtml(playerName)}">
                                 <i class="fas fa-user-slash me-2"></i>Deactivate Player
                                 <small class="d-block text-muted">Sets player as inactive (recommended)</small>
                             </button>
-                            <button class="btn btn-danger" onclick="hardDeletePlayer(${playerId}, '${playerName}')">
+                            <button class="btn btn-danger" data-action="hard-delete" data-player-id="${playerId}" data-player-name="${escapeHtml(playerName)}">
                                 <i class="fas fa-trash me-2"></i>Permanently Delete
                                 <small class="d-block text-muted">Completely removes player from database</small>
                             </button>
@@ -232,6 +378,20 @@ function deletePlayer(playerId, playerName) {
     
     // Add modal to body and show
     $('body').append(modalHtml);
+    
+    // Add event listeners to the buttons
+    $('#deletePlayerModal [data-action="deactivate"]').on('click', function() {
+        const playerId = $(this).data('player-id');
+        const playerName = $(this).data('player-name');
+        deactivatePlayer(playerId, playerName);
+    });
+    
+    $('#deletePlayerModal [data-action="hard-delete"]').on('click', function() {
+        const playerId = $(this).data('player-id');
+        const playerName = $(this).data('player-name');
+        hardDeletePlayer(playerId, playerName);
+    });
+    
     $('#deletePlayerModal').modal('show');
 }
 
@@ -874,14 +1034,18 @@ function displayGuides(guides) {
 }
 
 function addGuide() {
-    if (!validateForm('addGuideForm')) {
-        showToast('Please fill in all required fields', 'warning');
+    // Get content from TinyMCE editor
+    const editor = tinymce.get('guideContent');
+    const content = editor ? editor.getContent() : $('#guideContent').val().trim();
+    
+    if (!$('#guideTitle').val().trim() || !content) {
+        showToast('Please fill in title and content', 'warning');
         return;
     }
     
     const formData = new FormData();
     formData.append('title', $('#guideTitle').val().trim());
-    formData.append('content', $('#guideContent').val().trim());
+    formData.append('content', content);
     formData.append('category', $('#guideCategory').val());
     formData.append('order_index', parseInt($('#guideOrder').val()) || 0);
     formData.append('is_published', $('#guidePublished').is(':checked'));
@@ -926,15 +1090,28 @@ function editGuide(guideId) {
     
     $('#editGuideId').val(guide.id);
     $('#editGuideTitle').val(guide.title);
-    $('#editGuideContent').val(guide.content);
     $('#editGuideCategory').val(guide.category);
     $('#editGuideOrder').val(guide.order_index);
     $('#editGuidePublished').prop('checked', true); // Assume published since we only load published guides
     
-    // Display existing images
-    displayExistingImages(guide.images || []);
-    
+    // Set content in TinyMCE editor after modal is shown
     $('#editGuideModal').modal('show');
+    
+    // Wait for modal to be fully shown, then set TinyMCE content
+    $('#editGuideModal').on('shown.bs.modal', function() {
+        const editor = tinymce.get('editGuideContent');
+        if (editor) {
+            editor.setContent(guide.content || '');
+        } else {
+            $('#editGuideContent').val(guide.content);
+        }
+        
+        // Display existing images
+        displayExistingImages(guide.images || []);
+        
+        // Remove this event handler to prevent multiple bindings
+        $(this).off('shown.bs.modal');
+    });
 }
 
 function displayExistingImages(images) {
@@ -980,8 +1157,12 @@ function removeExistingImage(index, imageName) {
 }
 
 function updateGuide() {
-    if (!validateForm('editGuideForm')) {
-        showToast('Please fill in all required fields', 'warning');
+    // Get content from TinyMCE editor
+    const editor = tinymce.get('editGuideContent');
+    const content = editor ? editor.getContent() : $('#editGuideContent').val().trim();
+    
+    if (!$('#editGuideTitle').val().trim() || !content) {
+        showToast('Please fill in title and content', 'warning');
         return;
     }
     
@@ -1021,7 +1202,7 @@ function updateGuide() {
             
             // Combine existing and new images
             const allImages = [...existingImages, ...uploadData.images];
-            updateGuideWithImages(guideId, allImages);
+            updateGuideWithImages(guideId, allImages, content);
         })
         .catch(error => {
             handleApiError(error, 'Failed to upload images');
@@ -1031,7 +1212,7 @@ function updateGuide() {
         });
     } else {
         // No new images, just update with existing ones
-        updateGuideWithImages(guideId, existingImages);
+        updateGuideWithImages(guideId, existingImages, content);
     }
 }
 
@@ -1096,6 +1277,13 @@ function clearGuideForm(type) {
 function escapeJsString(str) {
     if (!str) return '';
     return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
 }
 
 function loadAllianceOptions(selectId = 'playerAlliance') {

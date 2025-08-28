@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Kings Choice Alliance Management - Stop Script
-echo "🛑 Stopping Kings Choice Alliance Management System"
+# Dragon World Alliance Management - Stop Script
+echo "🛑 Stopping Dragon World Alliance Management System"
 echo "=================================================="
 
 # Find and kill any running Flask processes
@@ -23,4 +23,4 @@ else
     echo "✅ All Flask processes stopped."
 fi
 
-echo "👋 Kings Choice Alliance Management System stopped."
+echo "👋 Dragon World Alliance Management System stopped."

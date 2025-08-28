@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Kings Choice Alliance Management Web App
+Dragon World Alliance Management Web App
 Main Flask application entry point
 """
 

@@ -32,17 +32,18 @@
                     </div>
                     <div class="mb-3">
                         <label for="guideContent" class="form-label">Guide Content *</label>
-                        <textarea class="form-control" id="guideContent" rows="8" required 
-                                  placeholder="Write your guide content here. You can use HTML formatting."></textarea>
+                        <textarea class="form-control guide-editor" id="guideContent" rows="8" required 
+                                  placeholder="Write your guide content here. Use the rich text editor for formatting and image insertion."></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="guideImages" class="form-label">Images <small class="text-muted">(Optional)</small></label>
+                        <label for="guideImages" class="form-label">Images for Insertion <small class="text-muted">(Optional)</small></label>
                         <input type="file" class="form-control" id="guideImages" multiple accept="image/*">
                         <div class="form-text">
                             <i class="fas fa-info-circle me-1"></i>
-                            Upload images (PNG, JPG, GIF, WebP). Max 5MB per file.
+                            Upload images (PNG, JPG, GIF, WebP). Max 5MB per file. You can insert these images into your content using the editor toolbar.
                         </div>
                         <div id="imagePreview" class="mt-2 row"></div>
+                        <div id="imageInsertButtons" class="mt-2"></div>
                     </div>
                     <div class="mb-3">
                         <div class="form-check">
@@ -99,17 +100,18 @@
                     </div>
                     <div class="mb-3">
                         <label for="editGuideContent" class="form-label">Guide Content *</label>
-                        <textarea class="form-control" id="editGuideContent" rows="8" required 
-                                  placeholder="Write your guide content here. You can use HTML formatting."></textarea>
+                        <textarea class="form-control guide-editor" id="editGuideContent" rows="8" required 
+                                  placeholder="Write your guide content here. Use the rich text editor for formatting and image insertion."></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="editGuideImages" class="form-label">Images <small class="text-muted">(Optional)</small></label>
+                        <label for="editGuideImages" class="form-label">Images for Insertion <small class="text-muted">(Optional)</small></label>
                         <input type="file" class="form-control" id="editGuideImages" multiple accept="image/*">
                         <div class="form-text">
                             <i class="fas fa-info-circle me-1"></i>
-                            Upload new images or keep existing ones. Max 5MB per file.
+                            Upload new images or keep existing ones. Max 5MB per file. You can insert images into your content using the editor toolbar.
                         </div>
                         <div id="editImagePreview" class="mt-2 row"></div>
+                        <div id="editImageInsertButtons" class="mt-2"></div>
                         <div id="existingImages" class="mt-2"></div>
                     </div>
                     <div class="mb-3">

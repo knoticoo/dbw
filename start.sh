@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Kings Choice Alliance Management - Start Script
-echo "🏰 Kings Choice Alliance Management System"
+# Dragon World Alliance Management - Start Script
+echo "🐉 Dragon World Alliance Management System"
 echo "=========================================="
 
 # Check if Python is available
@@ -105,7 +105,7 @@ read -p "Enter choice (1 or 2): " choice
 
 case $choice in
     1)
-        echo "🚀 Starting Kings Choice Alliance Management in foreground..."
+        echo "🚀 Starting Dragon World Alliance Management in foreground..."
         echo "📍 Access the application at: http://localhost:5002"
         echo "🛑 Press Ctrl+C to stop the server"
         echo ""
@@ -116,7 +116,7 @@ case $choice in
         ;;
     *)
         echo "❌ Invalid choice. Defaulting to foreground mode."
-        echo "🚀 Starting Kings Choice Alliance Management..."
+        echo "🚀 Starting Dragon World Alliance Management..."
         echo "📍 Access the application at: http://localhost:5002"
         echo "🛑 Press Ctrl+C to stop the server"
         echo ""

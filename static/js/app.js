@@ -1,5 +1,5 @@
 /**
- * Kings Choice Alliance Management - Main JavaScript
+ * Dragon World - Main JavaScript
  * Common functions and utilities
  */
 
