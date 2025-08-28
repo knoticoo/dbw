@@ -71,6 +71,10 @@ function loadPlayers() {
         .catch(error => {
             handleApiError(error, 'Failed to load players');
             $('#players-table-body').html('<tr><td colspan="6" class="text-center text-danger">Failed to load players</td></tr>');
+        })
+        .finally(() => {
+            // Always clear loading state
+            setLoadingState('players-table-body', false);
         });
 }
 
