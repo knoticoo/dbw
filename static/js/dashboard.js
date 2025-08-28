@@ -125,8 +125,7 @@ function addPlayer() {
     
     const playerData = {
         name: $('#playerName').val().trim(),
-        alliance_id: $('#playerAlliance').val() || null,
-        is_active: $('#playerActive').is(':checked')
+        alliance_id: $('#playerAlliance').val() || null
     };
     
     apiCall('POST', '/api/players/', playerData)
@@ -147,7 +146,6 @@ function editPlayer(playerId) {
     $('#editPlayerId').val(player.id);
     $('#editPlayerName').val(player.name);
     $('#editPlayerAlliance').val(player.alliance?.id || '');
-    $('#editPlayerActive').prop('checked', player.is_active);
     
     loadAllianceOptions('editPlayerAlliance');
     $('#editPlayerModal').modal('show');
@@ -162,8 +160,7 @@ function updatePlayer() {
     const playerId = $('#editPlayerId').val();
     const playerData = {
         name: $('#editPlayerName').val().trim(),
-        alliance_id: $('#editPlayerAlliance').val() || null,
-        is_active: $('#editPlayerActive').is(':checked')
+        alliance_id: $('#editPlayerAlliance').val() || null
     };
     
     apiCall('PUT', `/api/players/${playerId}`, playerData)
