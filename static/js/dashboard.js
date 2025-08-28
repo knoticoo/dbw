@@ -131,16 +131,72 @@ function updatePlayer() {
 }
 
 function deletePlayer(playerId, playerName) {
+    // Show options for soft delete (deactivate) or hard delete
+    const modalHtml = `
+        <div class="modal fade" id="deletePlayerModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Delete Player: ${playerName}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Choose how to handle this player:</p>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-warning" onclick="deactivatePlayer(${playerId}, '${playerName}')">
+                                <i class="fas fa-user-slash me-2"></i>Deactivate Player
+                                <small class="d-block text-muted">Sets player as inactive (recommended)</small>
+                            </button>
+                            <button class="btn btn-danger" onclick="hardDeletePlayer(${playerId}, '${playerName}')">
+                                <i class="fas fa-trash me-2"></i>Permanently Delete
+                                <small class="d-block text-muted">Completely removes player from database</small>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if present
+    $('#deletePlayerModal').remove();
+    
+    // Add modal to body and show
+    $('body').append(modalHtml);
+    $('#deletePlayerModal').modal('show');
+}
+
+function deactivatePlayer(playerId, playerName) {
+    $('#deletePlayerModal').modal('hide');
+    
+    apiCall('DELETE', `/api/players/${playerId}`)
+        .then(response => {
+            showToast('Player deactivated successfully', 'success');
+            loadPlayers();
+        })
+        .catch(error => {
+            handleApiError(error, 'Failed to deactivate player');
+        });
+}
+
+function hardDeletePlayer(playerId, playerName) {
+    $('#deletePlayerModal').modal('hide');
+    
     confirmAction(
-        `Are you sure you want to deactivate player "${playerName}"? This will set them as inactive.`,
+        `Are you absolutely sure you want to PERMANENTLY DELETE "${playerName}"? This action cannot be undone and will remove all associated data.`,
         () => {
-            apiCall('DELETE', `/api/players/${playerId}`)
+            apiCall('DELETE', `/api/players/${playerId}?hard=true`)
                 .then(response => {
-                    showToast('Player deactivated successfully', 'success');
+                    showToast('Player permanently deleted', 'success');
                     loadPlayers();
                 })
                 .catch(error => {
-                    handleApiError(error, 'Failed to deactivate player');
+                    handleApiError(error, 'Failed to delete player permanently');
                 });
         }
     );
@@ -660,6 +716,146 @@ function resetMVPRotation() {
                 });
         }
     );
+}
+
+// Guides Management
+let allGuides = [];
+
+function loadGuides() {
+    setLoadingState('guides-table-body');
+    
+    const category = $('#guideCategoryFilter').val();
+    const url = category ? `/guides/api?category=${category}` : '/guides/api';
+    
+    apiCall('GET', url)
+        .then(data => {
+            allGuides = data;
+            displayGuides(data);
+        })
+        .catch(error => {
+            handleApiError(error, 'Failed to load guides');
+            $('#guides-table-body').html('<tr><td colspan="5" class="text-center text-danger">Failed to load guides</td></tr>');
+        });
+}
+
+function displayGuides(guides) {
+    let html = '';
+    
+    if (guides.length === 0) {
+        html = '<tr><td colspan="5" class="text-center text-muted">No guides found</td></tr>';
+    } else {
+        guides.forEach(guide => {
+            html += `
+                <tr>
+                    <td><strong>${guide.title}</strong></td>
+                    <td><span class="badge bg-secondary">${guide.category}</span></td>
+                    <td>${guide.order_index}</td>
+                    <td><span class="badge bg-success">Published</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="editGuide(${guide.id})" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteGuide(${guide.id}, '${guide.title}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    
+    $('#guides-table-body').html(html);
+}
+
+function addGuide() {
+    if (!validateForm('addGuideForm')) {
+        showToast('Please fill in all required fields', 'warning');
+        return;
+    }
+    
+    const guideData = {
+        title: $('#guideTitle').val().trim(),
+        content: $('#guideContent').val().trim(),
+        category: $('#guideCategory').val(),
+        order_index: parseInt($('#guideOrder').val()) || 0,
+        is_published: $('#guidePublished').is(':checked')
+    };
+    
+    apiCall('POST', '/guides/api', guideData)
+        .then(response => {
+            showToast('Guide added successfully', 'success');
+            $('#addGuideModal').modal('hide');
+            loadGuides();
+            clearGuideForm('add');
+        })
+        .catch(error => {
+            handleApiError(error, 'Failed to add guide');
+        });
+}
+
+function editGuide(guideId) {
+    const guide = allGuides.find(g => g.id === guideId);
+    if (!guide) return;
+    
+    $('#editGuideId').val(guide.id);
+    $('#editGuideTitle').val(guide.title);
+    $('#editGuideContent').val(guide.content);
+    $('#editGuideCategory').val(guide.category);
+    $('#editGuideOrder').val(guide.order_index);
+    $('#editGuidePublished').prop('checked', true); // Assume published since we only load published guides
+    
+    $('#editGuideModal').modal('show');
+}
+
+function updateGuide() {
+    if (!validateForm('editGuideForm')) {
+        showToast('Please fill in all required fields', 'warning');
+        return;
+    }
+    
+    const guideId = $('#editGuideId').val();
+    const guideData = {
+        title: $('#editGuideTitle').val().trim(),
+        content: $('#editGuideContent').val().trim(),
+        category: $('#editGuideCategory').val(),
+        order_index: parseInt($('#editGuideOrder').val()) || 0,
+        is_published: $('#editGuidePublished').is(':checked')
+    };
+    
+    apiCall('PUT', `/guides/api/${guideId}`, guideData)
+        .then(response => {
+            showToast('Guide updated successfully', 'success');
+            $('#editGuideModal').modal('hide');
+            loadGuides();
+        })
+        .catch(error => {
+            handleApiError(error, 'Failed to update guide');
+        });
+}
+
+function deleteGuide(guideId, guideTitle) {
+    confirmAction(
+        `Are you sure you want to delete the guide "${guideTitle}"? This action cannot be undone.`,
+        () => {
+            apiCall('DELETE', `/guides/api/${guideId}`)
+                .then(response => {
+                    showToast('Guide deleted successfully', 'success');
+                    loadGuides();
+                })
+                .catch(error => {
+                    handleApiError(error, 'Failed to delete guide');
+                });
+        }
+    );
+}
+
+function clearGuideForm(type) {
+    const prefix = type === 'add' ? '' : 'edit';
+    $(`#${prefix}GuideTitle`).val('');
+    $(`#${prefix}GuideContent`).val('');
+    $(`#${prefix}GuideCategory`).val('');
+    $(`#${prefix}GuideOrder`).val('0');
+    $(`#${prefix}GuidePublished`).prop('checked', true);
 }
 
 // Helper Functions
