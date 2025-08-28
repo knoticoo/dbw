@@ -1,0 +1,22 @@
+[Unit]
+Description=Kings Choice Alliance Management Web Application
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/workspace
+Environment=PATH=/workspace/venv/bin:/usr/local/bin:/usr/bin:/bin
+Environment=FLASK_APP=run.py
+Environment=FLASK_ENV=production
+ExecStart=/workspace/venv/bin/python /workspace/run.py
+Restart=always
+RestartSec=10
+
+# Output to journal
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=kings-choice-alliance
+
+[Install]
+WantedBy=multi-user.target

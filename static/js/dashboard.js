@@ -9,7 +9,54 @@ $(document).ready(function() {
     loadPlayers();
     loadEvents();
     loadMVPSection();
+    
+    // Setup image preview handlers
+    setupImagePreviews();
 });
+
+function setupImagePreviews() {
+    // Handle image preview for add guide modal
+    $('#guideImages').on('change', function() {
+        previewImages(this, '#imagePreview');
+    });
+    
+    // Handle image preview for edit guide modal
+    $('#editGuideImages').on('change', function() {
+        previewImages(this, '#editImagePreview');
+    });
+}
+
+function previewImages(input, previewContainer) {
+    const container = $(previewContainer);
+    container.empty();
+    
+    if (input.files && input.files.length > 0) {
+        container.append('<h6>Image Preview:</h6>');
+        const imageRow = $('<div class="row"></div>');
+        
+        Array.from(input.files).forEach((file, index) => {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageCol = $(`
+                        <div class="col-md-3 mb-2">
+                            <div class="card">
+                                <img src="${e.target.result}" class="card-img-top" style="height: 100px; object-fit: cover;">
+                                <div class="card-body p-2">
+                                    <small class="text-muted">${file.name}</small>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                    imageRow.append(imageCol);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        container.append(imageRow);
+    }
+}
 
 // Players Management
 function loadPlayers() {
