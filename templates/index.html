@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Kings Choice Alliance Management{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="jumbotron bg-gradient text-white rounded p-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="text-center">
+                <i class="fas fa-crown fa-4x mb-3"></i>
+                <h1 class="display-4 fw-bold">Kings Choice Alliance Manager</h1>
+                <p class="lead">Master your alliances, track your victories, and dominate the realm with strategic precision.</p>
+                <a href="{{ url_for('dashboard') }}" class="btn btn-light btn-lg mt-3">
+                    <i class="fas fa-rocket me-2"></i>Enter Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="row mb-5">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-2x mb-2"></i>
+                <h4 id="total-players">-</h4>
+                <p class="mb-0">Active Players</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-shield-alt fa-2x mb-2"></i>
+                <h4 id="total-alliances">-</h4>
+                <p class="mb-0">Active Alliances</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-alt fa-2x mb-2"></i>
+                <h4 id="upcoming-events">-</h4>
+                <p class="mb-0">Upcoming Events</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-trophy fa-2x mb-2"></i>
+                <h4 id="mvp-rotation">-</h4>
+                <p class="mb-0">MVP Rotation</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Overview -->
+<div class="row mb-5">
+    <div class="col-12">
+        <h2 class="text-center mb-4">
+            <i class="fas fa-star me-2"></i>Key Features
+        </h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                <h5>Player Management</h5>
+                <p class="text-muted">Add, edit, and organize players. Track their MVP history and alliance memberships with ease.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-shield-alt fa-3x text-success mb-3"></i>
+                <h5>Alliance Control</h5>
+                <p class="text-muted">Manage alliances, track wins, and maintain blacklists for strategic advantage.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-alt fa-3x text-info mb-3"></i>
+                <h5>Event Tracking</h5>
+                <p class="text-muted">Create events, assign MVPs and winners. Keep detailed history of all competitions.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-trophy fa-3x text-warning mb-3"></i>
+                <h5>MVP Rotation</h5>
+                <p class="text-muted">Fair MVP assignment with automatic rotation. Ensures everyone gets their chance to shine.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-ban fa-3x text-danger mb-3"></i>
+                <h5>Blacklist System</h5>
+                <p class="text-muted">Maintain control with alliance blacklisting. Keep problematic alliances out of competitions.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-book fa-3x text-secondary mb-3"></i>
+                <h5>Strategy Guides</h5>
+                <p class="text-muted">Access comprehensive guides and documentation to master the game mechanics.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row mt-5">
+    <div class="col-12">
+        <h3><i class="fas fa-clock me-2"></i>Recent Activity</h3>
+        <div class="card">
+            <div class="card-body">
+                <div id="recent-activity">
+                    <div class="text-center py-4">
+                        <i class="fas fa-spinner fa-spin fa-2x text-muted"></i>
+                        <p class="mt-2 text-muted">Loading recent activity...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    loadDashboardStats();
+    loadRecentActivity();
+});
+
+function loadDashboardStats() {
+    // Load player stats
+    $.get('/api/players/stats', function(data) {
+        $('#total-players').text(data.active_players || 0);
+    });
+    
+    // Load alliance stats
+    $.get('/api/alliances/stats', function(data) {
+        $('#total-alliances').text(data.active_alliances || 0);
+    });
+    
+    // Load event stats
+    $.get('/api/events/stats', function(data) {
+        $('#upcoming-events').text(data.upcoming_events || 0);
+    });
+    
+    // Load MVP rotation status
+    $.get('/api/mvp/rotation_status', function(data) {
+        const pending = data.players_pending_mvp || 0;
+        $('#mvp-rotation').text(pending + ' pending');
+    });
+}
+
+function loadRecentActivity() {
+    // Load recent MVP assignments
+    $.get('/api/mvp/history?limit=5', function(data) {
+        let html = '';
+        if (data.length === 0) {
+            html = '<p class="text-muted text-center">No recent activity</p>';
+        } else {
+            data.forEach(function(item) {
+                html += `
+                    <div class="d-flex align-items-center mb-2 pb-2 border-bottom">
+                        <i class="fas fa-trophy text-warning me-3"></i>
+                        <div>
+                            <strong>${item.player.name}</strong> was MVP for <strong>${item.event.name}</strong>
+                            <small class="text-muted d-block">${item.event.date}</small>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        $('#recent-activity').html(html);
+    });
+}
+</script>
+{% endblock %}

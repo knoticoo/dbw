@@ -1,0 +1,88 @@
+<!-- Add Alliance Modal -->
+<div class="modal fade" id="addAllianceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-shield-alt me-2"></i>Add New Alliance
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addAllianceForm">
+                    <div class="mb-3">
+                        <label for="allianceName" class="form-label">Alliance Name *</label>
+                        <input type="text" class="form-control" id="allianceName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="allianceTag" class="form-label">Alliance Tag</label>
+                        <input type="text" class="form-control" id="allianceTag" placeholder="e.g., [TAG]">
+                    </div>
+                    <div class="mb-3">
+                        <label for="allianceDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="allianceDescription" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="allianceBlacklisted">
+                            <label class="form-check-label text-danger" for="allianceBlacklisted">
+                                <i class="fas fa-ban me-1"></i>Blacklisted Alliance
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="addAlliance()">
+                    <i class="fas fa-save me-1"></i>Add Alliance
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Alliance Modal -->
+<div class="modal fade" id="editAllianceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-shield-alt me-2"></i>Edit Alliance
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editAllianceForm">
+                    <input type="hidden" id="editAllianceId">
+                    <div class="mb-3">
+                        <label for="editAllianceName" class="form-label">Alliance Name *</label>
+                        <input type="text" class="form-control" id="editAllianceName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editAllianceTag" class="form-label">Alliance Tag</label>
+                        <input type="text" class="form-control" id="editAllianceTag" placeholder="e.g., [TAG]">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editAllianceDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editAllianceDescription" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="editAllianceBlacklisted">
+                            <label class="form-check-label text-danger" for="editAllianceBlacklisted">
+                                <i class="fas fa-ban me-1"></i>Blacklisted Alliance
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="updateAlliance()">
+                    <i class="fas fa-save me-1"></i>Update Alliance
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
