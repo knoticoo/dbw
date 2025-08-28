@@ -7,8 +7,43 @@ from flask import Blueprint, request, jsonify, render_template
 from models.database import get_db_connection
 from datetime import datetime
 import sqlite3
+import os
+import json
+from werkzeug.utils import secure_filename
+import uuid
 
 guides_bp = Blueprint('guides', __name__)
+
+# Configuration for file uploads
+UPLOAD_FOLDER = 'static/uploads/guides'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def save_uploaded_images(files):
+    """Save uploaded images and return list of filenames"""
+    if not files:
+        return []
+    
+    # Ensure upload directory exists
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    
+    saved_files = []
+    for file in files:
+        if file and file.filename and allowed_file(file.filename):
+            # Generate unique filename
+            filename = secure_filename(file.filename)
+            name, ext = os.path.splitext(filename)
+            unique_filename = f"{name}_{uuid.uuid4().hex[:8]}{ext}"
+            
+            filepath = os.path.join(UPLOAD_FOLDER, unique_filename)
+            file.save(filepath)
+            saved_files.append(unique_filename)
+    
+    return saved_files
 
 @guides_bp.route('/', methods=['GET'])
 def guides_page():
@@ -24,7 +59,7 @@ def get_guides():
     cursor = conn.cursor()
     
     query = '''
-        SELECT id, title, content, category, order_index
+        SELECT id, title, content, category, order_index, images
         FROM guides
         WHERE is_published = 1
     '''
@@ -40,12 +75,21 @@ def get_guides():
     
     guides = []
     for row in cursor.fetchall():
+        # Parse images JSON if present
+        images = []
+        if row['images']:
+            try:
+                images = json.loads(row['images'])
+            except (json.JSONDecodeError, TypeError):
+                images = []
+        
         guides.append({
             'id': row['id'],
             'title': row['title'],
             'content': row['content'],
             'category': row['category'],
-            'order_index': row['order_index']
+            'order_index': row['order_index'],
+            'images': images
         })
     
     conn.close()
@@ -53,8 +97,16 @@ def get_guides():
 
 @guides_bp.route('/api', methods=['POST'])
 def create_guide():
-    """Create a new guide"""
-    data = request.get_json()
+    """Create a new guide with optional image uploads"""
+    # Handle both form data and JSON
+    if request.is_json:
+        data = request.get_json()
+        images_list = data.get('images', [])
+    else:
+        data = request.form.to_dict()
+        # Handle file uploads
+        uploaded_files = request.files.getlist('images')
+        images_list = save_uploaded_images(uploaded_files)
     
     if not data or 'title' not in data or 'content' not in data:
         return jsonify({'error': 'Title and content are required'}), 400
@@ -63,15 +115,19 @@ def create_guide():
     cursor = conn.cursor()
     
     try:
+        # Convert images list to JSON string
+        images_json = json.dumps(images_list) if images_list else None
+        
         cursor.execute('''
-            INSERT INTO guides (title, content, category, order_index, is_published)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO guides (title, content, category, order_index, is_published, images)
+            VALUES (?, ?, ?, ?, ?, ?)
         ''', (
             data['title'],
             data['content'],
             data.get('category', 'general'),
-            data.get('order_index', 0),
-            data.get('is_published', True)
+            int(data.get('order_index', 0)),
+            bool(data.get('is_published', True)),
+            images_json
         ))
         
         guide_id = cursor.lastrowid
@@ -80,6 +136,7 @@ def create_guide():
         return jsonify({
             'id': guide_id,
             'title': data['title'],
+            'images': images_list,
             'message': 'Guide created successfully'
         }), 201
         
@@ -129,6 +186,11 @@ def update_guide(guide_id):
         update_fields.append('is_published = ?')
         values.append(data['is_published'])
     
+    if 'images' in data:
+        update_fields.append('images = ?')
+        images_json = json.dumps(data['images']) if data['images'] else None
+        values.append(images_json)
+    
     if not update_fields:
         conn.close()
         return jsonify({'error': 'No valid fields to update'}), 400
@@ -171,6 +233,33 @@ def delete_guide(guide_id):
     conn.close()
     
     return jsonify({'message': 'Guide deleted successfully'})
+
+@guides_bp.route('/api/upload-images', methods=['POST'])
+def upload_images():
+    """Upload images for guides"""
+    if 'images' not in request.files:
+        return jsonify({'error': 'No images provided'}), 400
+    
+    uploaded_files = request.files.getlist('images')
+    if not uploaded_files or all(f.filename == '' for f in uploaded_files):
+        return jsonify({'error': 'No images selected'}), 400
+    
+    try:
+        saved_files = save_uploaded_images(uploaded_files)
+        if not saved_files:
+            return jsonify({'error': 'No valid images uploaded'}), 400
+        
+        # Return URLs for the uploaded images
+        image_urls = [f'/static/uploads/guides/{filename}' for filename in saved_files]
+        
+        return jsonify({
+            'message': f'{len(saved_files)} images uploaded successfully',
+            'images': saved_files,
+            'urls': image_urls
+        }), 201
+        
+    except Exception as e:
+        return jsonify({'error': f'Upload failed: {str(e)}'}), 500
 
 @guides_bp.route('/api/categories', methods=['GET'])
 def get_guide_categories():

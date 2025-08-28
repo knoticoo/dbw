@@ -115,10 +115,18 @@ def init_db():
             category TEXT DEFAULT 'general',
             order_index INTEGER DEFAULT 0,
             is_published BOOLEAN DEFAULT 1,
+            images TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+    
+    # Add images column to existing guides table if it doesn't exist
+    try:
+        cursor.execute('ALTER TABLE guides ADD COLUMN images TEXT')
+    except sqlite3.OperationalError:
+        # Column already exists
+        pass
     
     # Create indexes for better performance
     cursor.execute('CREATE INDEX IF NOT EXISTS idx_players_alliance ON players(alliance_id)')

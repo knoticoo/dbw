@@ -773,24 +773,37 @@ function addGuide() {
         return;
     }
     
-    const guideData = {
-        title: $('#guideTitle').val().trim(),
-        content: $('#guideContent').val().trim(),
-        category: $('#guideCategory').val(),
-        order_index: parseInt($('#guideOrder').val()) || 0,
-        is_published: $('#guidePublished').is(':checked')
-    };
+    const formData = new FormData();
+    formData.append('title', $('#guideTitle').val().trim());
+    formData.append('content', $('#guideContent').val().trim());
+    formData.append('category', $('#guideCategory').val());
+    formData.append('order_index', parseInt($('#guideOrder').val()) || 0);
+    formData.append('is_published', $('#guidePublished').is(':checked'));
     
-    apiCall('POST', '/guides/api', guideData)
-        .then(response => {
-            showToast('Guide added successfully', 'success');
-            $('#addGuideModal').modal('hide');
-            loadGuides();
-            clearGuideForm('add');
-        })
-        .catch(error => {
-            handleApiError(error, 'Failed to add guide');
-        });
+    // Add image files
+    const imageFiles = $('#guideImages')[0].files;
+    for (let i = 0; i < imageFiles.length; i++) {
+        formData.append('images', imageFiles[i]);
+    }
+    
+    // Use fetch instead of apiCall for file uploads
+    fetch('/guides/api', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        showToast('Guide added successfully', 'success');
+        $('#addGuideModal').modal('hide');
+        loadGuides();
+        clearGuideForm('add');
+    })
+    .catch(error => {
+        handleApiError(error, 'Failed to add guide');
+    });
 }
 
 function editGuide(guideId) {
@@ -804,7 +817,52 @@ function editGuide(guideId) {
     $('#editGuideOrder').val(guide.order_index);
     $('#editGuidePublished').prop('checked', true); // Assume published since we only load published guides
     
+    // Display existing images
+    displayExistingImages(guide.images || []);
+    
     $('#editGuideModal').modal('show');
+}
+
+function displayExistingImages(images) {
+    const container = $('#existingImages');
+    container.empty();
+    
+    if (images.length === 0) {
+        container.html('<p class="text-muted">No existing images</p>');
+        return;
+    }
+    
+    container.append('<h6>Existing Images:</h6>');
+    const imageRow = $('<div class="row"></div>');
+    
+    images.forEach((image, index) => {
+        const imageCol = $(`
+            <div class="col-md-3 mb-2">
+                <div class="card">
+                    <img src="/static/uploads/guides/${image}" class="card-img-top" style="height: 100px; object-fit: cover;">
+                    <div class="card-body p-2">
+                        <button class="btn btn-sm btn-danger w-100" onclick="removeExistingImage(${index}, '${image}')">
+                            <i class="fas fa-trash"></i> Remove
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `);
+        imageRow.append(imageCol);
+    });
+    
+    container.append(imageRow);
+}
+
+function removeExistingImage(index, imageName) {
+    // Store removed images to handle on update
+    if (!window.removedImages) {
+        window.removedImages = [];
+    }
+    window.removedImages.push(imageName);
+    
+    // Remove from display
+    $(`#existingImages .col-md-3:eq(${index})`).remove();
 }
 
 function updateGuide() {
@@ -814,12 +872,56 @@ function updateGuide() {
     }
     
     const guideId = $('#editGuideId').val();
+    const guide = allGuides.find(g => g.id == guideId);
+    
+    // Handle existing images (remove deleted ones)
+    let existingImages = guide.images || [];
+    if (window.removedImages) {
+        existingImages = existingImages.filter(img => !window.removedImages.includes(img));
+        window.removedImages = []; // Clear for next time
+    }
+    
+    // If new images are uploaded, upload them first
+    const newImageFiles = $('#editGuideImages')[0].files;
+    
+    if (newImageFiles.length > 0) {
+        // Upload new images first
+        const imageFormData = new FormData();
+        for (let i = 0; i < newImageFiles.length; i++) {
+            imageFormData.append('images', newImageFiles[i]);
+        }
+        
+        fetch('/guides/api/upload-images', {
+            method: 'POST',
+            body: imageFormData
+        })
+        .then(response => response.json())
+        .then(uploadData => {
+            if (uploadData.error) {
+                throw new Error(uploadData.error);
+            }
+            
+            // Combine existing and new images
+            const allImages = [...existingImages, ...uploadData.images];
+            updateGuideWithImages(guideId, allImages);
+        })
+        .catch(error => {
+            handleApiError(error, 'Failed to upload images');
+        });
+    } else {
+        // No new images, just update with existing ones
+        updateGuideWithImages(guideId, existingImages);
+    }
+}
+
+function updateGuideWithImages(guideId, images) {
     const guideData = {
         title: $('#editGuideTitle').val().trim(),
         content: $('#editGuideContent').val().trim(),
         category: $('#editGuideCategory').val(),
         order_index: parseInt($('#editGuideOrder').val()) || 0,
-        is_published: $('#editGuidePublished').is(':checked')
+        is_published: $('#editGuidePublished').is(':checked'),
+        images: images
     };
     
     apiCall('PUT', `/guides/api/${guideId}`, guideData)
@@ -856,6 +958,12 @@ function clearGuideForm(type) {
     $(`#${prefix}GuideCategory`).val('');
     $(`#${prefix}GuideOrder`).val('0');
     $(`#${prefix}GuidePublished`).prop('checked', true);
+    $(`#${prefix}GuideImages`).val('');
+    $(`#${prefix === 'edit' ? 'editImagePreview' : 'imagePreview'}`).empty();
+    if (type === 'edit') {
+        $('#existingImages').empty();
+        window.removedImages = [];
+    }
 }
 
 // Helper Functions
