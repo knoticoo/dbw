@@ -123,6 +123,10 @@ function addPlayer() {
         return;
     }
     
+    // Show loading state on button
+    const addButton = '#addPlayerModal .btn-success';
+    setButtonLoading(addButton, true);
+    
     const playerData = {
         name: $('#playerName').val().trim(),
         alliance_id: $('#playerAlliance').val() || null
@@ -136,6 +140,10 @@ function addPlayer() {
         })
         .catch(error => {
             handleApiError(error, 'Failed to add player');
+        })
+        .finally(() => {
+            // Always restore button state
+            setButtonLoading(addButton, false);
         });
 }
 
@@ -157,6 +165,10 @@ function updatePlayer() {
         return;
     }
     
+    // Show loading state on button
+    const updateButton = '#editPlayerModal .btn-primary';
+    setButtonLoading(updateButton, true);
+    
     const playerId = $('#editPlayerId').val();
     const playerData = {
         name: $('#editPlayerName').val().trim(),
@@ -171,6 +183,10 @@ function updatePlayer() {
         })
         .catch(error => {
             handleApiError(error, 'Failed to update player');
+        })
+        .finally(() => {
+            // Always restore button state
+            setButtonLoading(updateButton, false);
         });
 }
 
@@ -315,6 +331,10 @@ function addAlliance() {
         return;
     }
     
+    // Show loading state on button
+    const addButton = '#addAllianceModal .btn-success';
+    setButtonLoading(addButton, true);
+    
     const allianceData = {
         name: $('#allianceName').val().trim(),
         tag: $('#allianceTag').val().trim(),
@@ -330,6 +350,10 @@ function addAlliance() {
         })
         .catch(error => {
             handleApiError(error, 'Failed to add alliance');
+        })
+        .finally(() => {
+            // Always restore button state
+            setButtonLoading(addButton, false);
         });
 }
 
@@ -360,6 +384,10 @@ function updateAlliance() {
         is_blacklisted: $('#editAllianceBlacklisted').is(':checked')
     };
     
+    // Show loading state on button
+    const updateButton = '#editAllianceModal .btn-primary';
+    setButtonLoading(updateButton, true);
+    
     apiCall('PUT', `/api/alliances/${allianceId}`, allianceData)
         .then(response => {
             showToast('Alliance updated successfully', 'success');
@@ -368,6 +396,10 @@ function updateAlliance() {
         })
         .catch(error => {
             handleApiError(error, 'Failed to update alliance');
+        })
+        .finally(() => {
+            // Always restore button state
+            setButtonLoading(updateButton, false);
         });
 }
 
@@ -484,6 +516,10 @@ function addEvent() {
         return;
     }
     
+    // Show loading state on button
+    const addButton = '#addEventModal .btn-success';
+    setButtonLoading(addButton, true);
+    
     const eventData = {
         name: $('#eventName').val().trim(),
         event_date: $('#eventDate').val()
@@ -497,6 +533,10 @@ function addEvent() {
         })
         .catch(error => {
             handleApiError(error, 'Failed to add event');
+        })
+        .finally(() => {
+            // Always restore button state
+            setButtonLoading(addButton, false);
         });
 }
 
@@ -517,6 +557,10 @@ function updateEvent() {
         return;
     }
     
+    // Show loading state on button
+    const updateButton = '#editEventModal .btn-primary';
+    setButtonLoading(updateButton, true);
+    
     const eventId = $('#editEventId').val();
     const eventData = {
         name: $('#editEventName').val().trim(),
@@ -531,6 +575,10 @@ function updateEvent() {
         })
         .catch(error => {
             handleApiError(error, 'Failed to update event');
+        })
+        .finally(() => {
+            // Always restore button state
+            setButtonLoading(updateButton, false);
         });
 }
 
@@ -592,6 +640,10 @@ function assignEventMVP() {
         return;
     }
     
+    // Show loading state on button
+    const assignButton = '#assignMVPModal .btn-warning';
+    setButtonLoading(assignButton, true);
+    
     const eventId = $('#mvpEventId').val();
     const playerId = $('#mvpPlayer').val();
     const mvpType = $('#mvpType').val();
@@ -609,6 +661,10 @@ function assignEventMVP() {
         })
         .catch(error => {
             handleApiError(error, 'Failed to assign MVP');
+        })
+        .finally(() => {
+            // Always restore button state
+            setButtonLoading(assignButton, false);
         });
 }
 
@@ -634,6 +690,10 @@ function assignEventWinner() {
         return;
     }
     
+    // Show loading state on button
+    const assignButton = '#assignWinnerModal .btn-success';
+    setButtonLoading(assignButton, true);
+    
     const eventId = $('#winnerEventId').val();
     const allianceId = $('#winnerAlliance').val();
     
@@ -646,6 +706,10 @@ function assignEventWinner() {
         })
         .catch(error => {
             handleApiError(error, 'Failed to assign winner');
+        })
+        .finally(() => {
+            // Always restore button state
+            setButtonLoading(assignButton, false);
         });
 }
 
@@ -810,6 +874,10 @@ function addGuide() {
         formData.append('images', imageFiles[i]);
     }
     
+    // Show loading state on button
+    const addButton = '#addGuideModal .btn-success';
+    setButtonLoading(addButton, true);
+    
     // Use fetch instead of apiCall for file uploads
     fetch('/guides/api', {
         method: 'POST',
@@ -827,6 +895,10 @@ function addGuide() {
     })
     .catch(error => {
         handleApiError(error, 'Failed to add guide');
+    })
+    .finally(() => {
+        // Always restore button state
+        setButtonLoading(addButton, false);
     });
 }
 
@@ -895,6 +967,10 @@ function updateGuide() {
         return;
     }
     
+    // Show loading state on button
+    const updateButton = '#editGuideModal .btn-primary';
+    setButtonLoading(updateButton, true);
+    
     const guideId = $('#editGuideId').val();
     const guide = allGuides.find(g => g.id == guideId);
     
@@ -931,6 +1007,9 @@ function updateGuide() {
         })
         .catch(error => {
             handleApiError(error, 'Failed to upload images');
+            // Restore button state on error
+            const updateButton = '#editGuideModal .btn-primary';
+            setButtonLoading(updateButton, false);
         });
     } else {
         // No new images, just update with existing ones
@@ -956,6 +1035,11 @@ function updateGuideWithImages(guideId, images) {
         })
         .catch(error => {
             handleApiError(error, 'Failed to update guide');
+        })
+        .finally(() => {
+            // Always restore button state
+            const updateButton = '#editGuideModal .btn-primary';
+            setButtonLoading(updateButton, false);
         });
 }
 
