@@ -256,6 +256,18 @@ function viewGuideDetails(guideId) {
                             <div class="guide-content">
                                 ${guide.content.replace(/\n/g, '<br>')}
                             </div>
+                            ${guide.images && guide.images.length > 0 ? `
+                                <div class="mt-3">
+                                    <h6>Images:</h6>
+                                    <div class="row">
+                                        ${guide.images.map(image => `
+                                            <div class="col-md-4 mb-2">
+                                                <img src="/static/uploads/guides/${image}" class="img-fluid rounded" style="cursor: pointer;" onclick="showImageModal('/static/uploads/guides/${image}')">
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -274,6 +286,28 @@ function viewGuideDetails(guideId) {
         // Show modal
         $('#guideDetailModal').modal('show');
     }
+}
+
+function showImageModal(imageSrc) {
+    const imageModal = `
+        <div class="modal fade" id="imageModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Image View</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img src="${imageSrc}" class="img-fluid" style="max-height: 70vh;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    $('#imageModal').remove();
+    $('body').append(imageModal);
+    $('#imageModal').modal('show');
 }
 </script>
 {% endblock %}
