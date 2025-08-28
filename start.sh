@@ -10,11 +10,19 @@ if ! command -v python3 &> /dev/null; then
     exit 1
 fi
 
-# Check if Flask is installed
-if ! python3 -c "import flask" 2>/dev/null; then
-    echo "📦 Installing Flask dependencies..."
-    pip3 install --break-system-packages Flask Flask-CORS
+# Create virtual environment if it doesn't exist
+if [ ! -d "venv" ]; then
+    echo "🔧 Creating virtual environment..."
+    python3 -m venv venv
 fi
+
+# Activate virtual environment
+echo "🔌 Activating virtual environment..."
+source venv/bin/activate
+
+# Install dependencies in virtual environment
+echo "📦 Installing Flask dependencies in virtual environment..."
+pip install -r requirements.txt
 
 # Initialize database if it doesn't exist
 if [ ! -f "alliance_management.db" ]; then
