@@ -51,6 +51,9 @@ function showSection(section) {
         case 'mvp':
             loadMVPSection();
             break;
+        case 'guides':
+            loadGuides();
+            break;
     }
 }
 

@@ -12,15 +12,17 @@
                 <form id="addAllianceForm">
                     <div class="mb-3">
                         <label for="allianceName" class="form-label">Alliance Name *</label>
-                        <input type="text" class="form-control" id="allianceName" required>
+                        <input type="text" class="form-control" id="allianceName" required 
+                               placeholder="Enter the alliance name">
                     </div>
                     <div class="mb-3">
-                        <label for="allianceTag" class="form-label">Alliance Tag</label>
+                        <label for="allianceTag" class="form-label">Alliance Tag <small class="text-muted">(Optional)</small></label>
                         <input type="text" class="form-control" id="allianceTag" placeholder="e.g., [TAG]">
                     </div>
                     <div class="mb-3">
-                        <label for="allianceDescription" class="form-label">Description</label>
-                        <textarea class="form-control" id="allianceDescription" rows="3"></textarea>
+                        <label for="allianceDescription" class="form-label">Description <small class="text-muted">(Optional)</small></label>
+                        <textarea class="form-control" id="allianceDescription" rows="2" 
+                                  placeholder="Brief description of the alliance"></textarea>
                     </div>
                     <div class="mb-3">
                         <div class="form-check">

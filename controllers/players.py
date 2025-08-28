@@ -143,7 +143,9 @@ def update_player(player_id):
 
 @players_bp.route('/<int:player_id>', methods=['DELETE'])
 def delete_player(player_id):
-    """Delete a player (soft delete by setting inactive)"""
+    """Delete a player (soft delete by setting inactive or hard delete)"""
+    hard_delete = request.args.get('hard', 'false').lower() == 'true'
+    
     conn = get_db_connection()
     cursor = conn.cursor()
     
@@ -152,17 +154,39 @@ def delete_player(player_id):
         conn.close()
         return jsonify({'error': 'Player not found'}), 404
     
-    # Soft delete - set as inactive
-    cursor.execute('''
-        UPDATE players 
-        SET is_active = 0, updated_at = ?
-        WHERE id = ?
-    ''', (datetime.now(), player_id))
-    
-    conn.commit()
-    conn.close()
-    
-    return jsonify({'message': 'Player deactivated successfully'})
+    try:
+        if hard_delete:
+            # Hard delete - remove completely from database
+            # First remove from MVP rotation
+            cursor.execute('DELETE FROM mvp_rotation WHERE player_id = ?', (player_id,))
+            
+            # Remove from any event MVP assignments
+            cursor.execute('UPDATE events SET mvp_player_id = NULL WHERE mvp_player_id = ?', (player_id,))
+            
+            # Finally delete the player
+            cursor.execute('DELETE FROM players WHERE id = ?', (player_id,))
+            
+            conn.commit()
+            conn.close()
+            
+            return jsonify({'message': 'Player permanently deleted successfully'})
+        else:
+            # Soft delete - set as inactive
+            cursor.execute('''
+                UPDATE players 
+                SET is_active = 0, updated_at = ?
+                WHERE id = ?
+            ''', (datetime.now(), player_id))
+            
+            conn.commit()
+            conn.close()
+            
+            return jsonify({'message': 'Player deactivated successfully'})
+            
+    except Exception as e:
+        conn.rollback()
+        conn.close()
+        return jsonify({'error': f'Failed to delete player: {str(e)}'}), 500
 
 @players_bp.route('/active', methods=['GET'])
 def get_active_players():

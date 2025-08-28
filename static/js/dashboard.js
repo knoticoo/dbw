@@ -9,7 +9,54 @@ $(document).ready(function() {
     loadPlayers();
     loadEvents();
     loadMVPSection();
+    
+    // Setup image preview handlers
+    setupImagePreviews();
 });
+
+function setupImagePreviews() {
+    // Handle image preview for add guide modal
+    $('#guideImages').on('change', function() {
+        previewImages(this, '#imagePreview');
+    });
+    
+    // Handle image preview for edit guide modal
+    $('#editGuideImages').on('change', function() {
+        previewImages(this, '#editImagePreview');
+    });
+}
+
+function previewImages(input, previewContainer) {
+    const container = $(previewContainer);
+    container.empty();
+    
+    if (input.files && input.files.length > 0) {
+        container.append('<h6>Image Preview:</h6>');
+        const imageRow = $('<div class="row"></div>');
+        
+        Array.from(input.files).forEach((file, index) => {
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageCol = $(`
+                        <div class="col-md-3 mb-2">
+                            <div class="card">
+                                <img src="${e.target.result}" class="card-img-top" style="height: 100px; object-fit: cover;">
+                                <div class="card-body p-2">
+                                    <small class="text-muted">${file.name}</small>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                    imageRow.append(imageCol);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        container.append(imageRow);
+    }
+}
 
 // Players Management
 function loadPlayers() {
@@ -131,16 +178,72 @@ function updatePlayer() {
 }
 
 function deletePlayer(playerId, playerName) {
+    // Show options for soft delete (deactivate) or hard delete
+    const modalHtml = `
+        <div class="modal fade" id="deletePlayerModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-danger">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Delete Player: ${playerName}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Choose how to handle this player:</p>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-warning" onclick="deactivatePlayer(${playerId}, '${playerName}')">
+                                <i class="fas fa-user-slash me-2"></i>Deactivate Player
+                                <small class="d-block text-muted">Sets player as inactive (recommended)</small>
+                            </button>
+                            <button class="btn btn-danger" onclick="hardDeletePlayer(${playerId}, '${playerName}')">
+                                <i class="fas fa-trash me-2"></i>Permanently Delete
+                                <small class="d-block text-muted">Completely removes player from database</small>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if present
+    $('#deletePlayerModal').remove();
+    
+    // Add modal to body and show
+    $('body').append(modalHtml);
+    $('#deletePlayerModal').modal('show');
+}
+
+function deactivatePlayer(playerId, playerName) {
+    $('#deletePlayerModal').modal('hide');
+    
+    apiCall('DELETE', `/api/players/${playerId}`)
+        .then(response => {
+            showToast('Player deactivated successfully', 'success');
+            loadPlayers();
+        })
+        .catch(error => {
+            handleApiError(error, 'Failed to deactivate player');
+        });
+}
+
+function hardDeletePlayer(playerId, playerName) {
+    $('#deletePlayerModal').modal('hide');
+    
     confirmAction(
-        `Are you sure you want to deactivate player "${playerName}"? This will set them as inactive.`,
+        `Are you absolutely sure you want to PERMANENTLY DELETE "${playerName}"? This action cannot be undone and will remove all associated data.`,
         () => {
-            apiCall('DELETE', `/api/players/${playerId}`)
+            apiCall('DELETE', `/api/players/${playerId}?hard=true`)
                 .then(response => {
-                    showToast('Player deactivated successfully', 'success');
+                    showToast('Player permanently deleted', 'success');
                     loadPlayers();
                 })
                 .catch(error => {
-                    handleApiError(error, 'Failed to deactivate player');
+                    handleApiError(error, 'Failed to delete player permanently');
                 });
         }
     );
@@ -660,6 +763,254 @@ function resetMVPRotation() {
                 });
         }
     );
+}
+
+// Guides Management
+let allGuides = [];
+
+function loadGuides() {
+    setLoadingState('guides-table-body');
+    
+    const category = $('#guideCategoryFilter').val();
+    const url = category ? `/guides/api?category=${category}` : '/guides/api';
+    
+    apiCall('GET', url)
+        .then(data => {
+            allGuides = data;
+            displayGuides(data);
+        })
+        .catch(error => {
+            handleApiError(error, 'Failed to load guides');
+            $('#guides-table-body').html('<tr><td colspan="5" class="text-center text-danger">Failed to load guides</td></tr>');
+        });
+}
+
+function displayGuides(guides) {
+    let html = '';
+    
+    if (guides.length === 0) {
+        html = '<tr><td colspan="5" class="text-center text-muted">No guides found</td></tr>';
+    } else {
+        guides.forEach(guide => {
+            html += `
+                <tr>
+                    <td><strong>${guide.title}</strong></td>
+                    <td><span class="badge bg-secondary">${guide.category}</span></td>
+                    <td>${guide.order_index}</td>
+                    <td><span class="badge bg-success">Published</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="editGuide(${guide.id})" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteGuide(${guide.id}, '${guide.title}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+    
+    $('#guides-table-body').html(html);
+}
+
+function addGuide() {
+    if (!validateForm('addGuideForm')) {
+        showToast('Please fill in all required fields', 'warning');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('title', $('#guideTitle').val().trim());
+    formData.append('content', $('#guideContent').val().trim());
+    formData.append('category', $('#guideCategory').val());
+    formData.append('order_index', parseInt($('#guideOrder').val()) || 0);
+    formData.append('is_published', $('#guidePublished').is(':checked'));
+    
+    // Add image files
+    const imageFiles = $('#guideImages')[0].files;
+    for (let i = 0; i < imageFiles.length; i++) {
+        formData.append('images', imageFiles[i]);
+    }
+    
+    // Use fetch instead of apiCall for file uploads
+    fetch('/guides/api', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        showToast('Guide added successfully', 'success');
+        $('#addGuideModal').modal('hide');
+        loadGuides();
+        clearGuideForm('add');
+    })
+    .catch(error => {
+        handleApiError(error, 'Failed to add guide');
+    });
+}
+
+function editGuide(guideId) {
+    const guide = allGuides.find(g => g.id === guideId);
+    if (!guide) return;
+    
+    $('#editGuideId').val(guide.id);
+    $('#editGuideTitle').val(guide.title);
+    $('#editGuideContent').val(guide.content);
+    $('#editGuideCategory').val(guide.category);
+    $('#editGuideOrder').val(guide.order_index);
+    $('#editGuidePublished').prop('checked', true); // Assume published since we only load published guides
+    
+    // Display existing images
+    displayExistingImages(guide.images || []);
+    
+    $('#editGuideModal').modal('show');
+}
+
+function displayExistingImages(images) {
+    const container = $('#existingImages');
+    container.empty();
+    
+    if (images.length === 0) {
+        container.html('<p class="text-muted">No existing images</p>');
+        return;
+    }
+    
+    container.append('<h6>Existing Images:</h6>');
+    const imageRow = $('<div class="row"></div>');
+    
+    images.forEach((image, index) => {
+        const imageCol = $(`
+            <div class="col-md-3 mb-2">
+                <div class="card">
+                    <img src="/static/uploads/guides/${image}" class="card-img-top" style="height: 100px; object-fit: cover;">
+                    <div class="card-body p-2">
+                        <button class="btn btn-sm btn-danger w-100" onclick="removeExistingImage(${index}, '${image}')">
+                            <i class="fas fa-trash"></i> Remove
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `);
+        imageRow.append(imageCol);
+    });
+    
+    container.append(imageRow);
+}
+
+function removeExistingImage(index, imageName) {
+    // Store removed images to handle on update
+    if (!window.removedImages) {
+        window.removedImages = [];
+    }
+    window.removedImages.push(imageName);
+    
+    // Remove from display
+    $(`#existingImages .col-md-3:eq(${index})`).remove();
+}
+
+function updateGuide() {
+    if (!validateForm('editGuideForm')) {
+        showToast('Please fill in all required fields', 'warning');
+        return;
+    }
+    
+    const guideId = $('#editGuideId').val();
+    const guide = allGuides.find(g => g.id == guideId);
+    
+    // Handle existing images (remove deleted ones)
+    let existingImages = guide.images || [];
+    if (window.removedImages) {
+        existingImages = existingImages.filter(img => !window.removedImages.includes(img));
+        window.removedImages = []; // Clear for next time
+    }
+    
+    // If new images are uploaded, upload them first
+    const newImageFiles = $('#editGuideImages')[0].files;
+    
+    if (newImageFiles.length > 0) {
+        // Upload new images first
+        const imageFormData = new FormData();
+        for (let i = 0; i < newImageFiles.length; i++) {
+            imageFormData.append('images', newImageFiles[i]);
+        }
+        
+        fetch('/guides/api/upload-images', {
+            method: 'POST',
+            body: imageFormData
+        })
+        .then(response => response.json())
+        .then(uploadData => {
+            if (uploadData.error) {
+                throw new Error(uploadData.error);
+            }
+            
+            // Combine existing and new images
+            const allImages = [...existingImages, ...uploadData.images];
+            updateGuideWithImages(guideId, allImages);
+        })
+        .catch(error => {
+            handleApiError(error, 'Failed to upload images');
+        });
+    } else {
+        // No new images, just update with existing ones
+        updateGuideWithImages(guideId, existingImages);
+    }
+}
+
+function updateGuideWithImages(guideId, images) {
+    const guideData = {
+        title: $('#editGuideTitle').val().trim(),
+        content: $('#editGuideContent').val().trim(),
+        category: $('#editGuideCategory').val(),
+        order_index: parseInt($('#editGuideOrder').val()) || 0,
+        is_published: $('#editGuidePublished').is(':checked'),
+        images: images
+    };
+    
+    apiCall('PUT', `/guides/api/${guideId}`, guideData)
+        .then(response => {
+            showToast('Guide updated successfully', 'success');
+            $('#editGuideModal').modal('hide');
+            loadGuides();
+        })
+        .catch(error => {
+            handleApiError(error, 'Failed to update guide');
+        });
+}
+
+function deleteGuide(guideId, guideTitle) {
+    confirmAction(
+        `Are you sure you want to delete the guide "${guideTitle}"? This action cannot be undone.`,
+        () => {
+            apiCall('DELETE', `/guides/api/${guideId}`)
+                .then(response => {
+                    showToast('Guide deleted successfully', 'success');
+                    loadGuides();
+                })
+                .catch(error => {
+                    handleApiError(error, 'Failed to delete guide');
+                });
+        }
+    );
+}
+
+function clearGuideForm(type) {
+    const prefix = type === 'add' ? '' : 'edit';
+    $(`#${prefix}GuideTitle`).val('');
+    $(`#${prefix}GuideContent`).val('');
+    $(`#${prefix}GuideCategory`).val('');
+    $(`#${prefix}GuideOrder`).val('0');
+    $(`#${prefix}GuidePublished`).prop('checked', true);
+    $(`#${prefix}GuideImages`).val('');
+    $(`#${prefix === 'edit' ? 'editImagePreview' : 'imagePreview'}`).empty();
+    if (type === 'edit') {
+        $('#existingImages').empty();
+        window.removedImages = [];
+    }
 }
 
 // Helper Functions

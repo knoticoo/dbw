@@ -5,21 +5,31 @@ A comprehensive web application for managing alliances, players, events, and MVP
 ## ✨ Features
 
 ### 🎯 Core Functionality
-- **Player Management**: Add, edit, and organize players with alliance assignments
-- **Alliance Control**: Create and manage alliances with blacklist functionality  
+- **Enhanced Player Management**: Add, edit, delete (soft/hard), and organize players with alliance assignments
+- **Simplified Alliance Control**: Create alliances with just a name - other fields optional, blacklist functionality  
 - **Event Tracking**: Create events and track competitions with detailed history
 - **MVP Rotation**: Fair MVP assignment with automatic rotation system
 - **MVP Types**: Three MVP tiers (Simple, Earl, Duke) with different point values
 - **Winner Assignment**: Assign alliance winners to events with win tracking
-- **Strategy Guides**: Built-in guides and documentation system
+- **Guides with Images**: Built-in guides and documentation system with image upload support
 
 ### 🔧 Technical Features
 - **Modular Architecture**: Easy to extend and maintain
 - **SQLite Database**: Lightweight, serverless database
 - **RESTful API**: Clean API endpoints for all operations
-- **Responsive UI**: Modern Bootstrap-based interface
+- **Enhanced Responsive UI**: Modern Bootstrap-based interface with improved button visibility
 - **Real-time Updates**: Dynamic content loading
+- **Persistent Service**: Run as systemd service that survives SSH disconnection
+- **Image Support**: Upload and manage images with guides
 - **Port Flexibility**: Configured for port 5002 (avoiding 5000/5001 conflicts)
+
+### 🆕 Recent Improvements
+- ✅ **Enhanced UI Design**: Better button visibility, contrast, and modern styling
+- ✅ **Player Delete Options**: Choose between soft delete (deactivate) or hard delete (permanent)
+- ✅ **Simplified Alliance Creation**: Only alliance name required, other fields optional
+- ✅ **Guides with Images**: Upload multiple images per guide with preview functionality
+- ✅ **Service Management**: Run as persistent systemd service with management scripts
+- ✅ **Improved Forms**: Enhanced form styling, validation, and user experience
 
 ## 🚀 Quick Start
 
@@ -44,9 +54,24 @@ A comprehensive web application for managing alliances, players, events, and MVP
    python3 models/database.py
    ```
 
-4. **Run the application**
+4. **Choose how to run the application**
+   
+   **Option A: Quick Start (stops when SSH closes)**
    ```bash
    python3 run.py
+   ```
+   
+   **Option B: Enhanced Setup with Service Option**
+   ```bash
+   chmod +x start.sh
+   ./start.sh
+   ```
+   This will prompt you to choose between foreground mode or persistent service mode.
+
+   **Option C: Direct Service Installation**
+   ```bash
+   chmod +x manage-service.sh
+   ./manage-service.sh install
    ```
 
 5. **Access the application**
@@ -54,6 +79,29 @@ A comprehensive web application for managing alliances, players, events, and MVP
    - Home Page: http://localhost:5002/
    - Guides: http://localhost:5002/guides
    - API Health: http://localhost:5002/health
+
+## 🔧 Service Management
+
+For production use, run the application as a persistent service:
+
+```bash
+# Install and start as service
+./manage-service.sh install
+
+# Service management commands
+./manage-service.sh start      # Start the service
+./manage-service.sh stop       # Stop the service
+./manage-service.sh restart    # Restart the service
+./manage-service.sh status     # Check service status
+./manage-service.sh logs       # View live logs
+./manage-service.sh uninstall  # Remove the service
+```
+
+**Benefits of Service Mode:**
+- ✅ Survives SSH disconnection
+- ✅ Automatic restart on failure
+- ✅ Starts automatically on system boot
+- ✅ Proper logging via systemd journal
 
 ## 📋 Usage Guide
 

@@ -58,9 +58,68 @@ if [ ! -f "alliance_management.db" ]; then
     python3 models/database.py
 fi
 
-# Start the application
-echo "🚀 Starting Kings Choice Alliance Management..."
-echo "📍 Access the application at: http://localhost:5002"
-echo "🛑 Press Ctrl+C to stop the server"
+# Check if running as service setup
+if [ "$1" = "--service" ]; then
+    echo "🔧 Setting up as systemd service..."
+    
+    # Copy service file
+    sudo cp kings-choice-alliance.service /etc/systemd/system/
+    
+    # Update service file with current directory
+    sudo sed -i "s|/workspace|$(pwd)|g" /etc/systemd/system/kings-choice-alliance.service
+    
+    # Reload systemd
+    sudo systemctl daemon-reload
+    
+    # Enable and start service
+    sudo systemctl enable kings-choice-alliance.service
+    sudo systemctl start kings-choice-alliance.service
+    
+    echo "✅ Service installed and started!"
+    echo "📊 Service status:"
+    sudo systemctl status kings-choice-alliance.service --no-pager
+    
+    echo ""
+    echo "🎉 Application is now running as a service!"
+    echo "📍 Access the application at: http://localhost:5002"
+    echo "🔍 Check status: sudo systemctl status kings-choice-alliance"
+    echo "🛑 Stop service: sudo systemctl stop kings-choice-alliance"
+    echo "🔄 Restart service: sudo systemctl restart kings-choice-alliance"
+    echo "📜 View logs: sudo journalctl -u kings-choice-alliance -f"
+    
+    exit 0
+fi
+
+# Setup directories
+echo "📁 Setting up directories..."
+mkdir -p static/uploads/guides
+chmod -R 755 static/uploads
+
+# Choose how to run
 echo ""
-python3 run.py
+echo "Choose how to run the application:"
+echo "1. Run in foreground (stops when SSH closes)"
+echo "2. Run as systemd service (persistent, survives SSH disconnection)"
+echo ""
+read -p "Enter choice (1 or 2): " choice
+
+case $choice in
+    1)
+        echo "🚀 Starting Kings Choice Alliance Management in foreground..."
+        echo "📍 Access the application at: http://localhost:5002"
+        echo "🛑 Press Ctrl+C to stop the server"
+        echo ""
+        python3 run.py
+        ;;
+    2)
+        exec bash "$0" --service
+        ;;
+    *)
+        echo "❌ Invalid choice. Defaulting to foreground mode."
+        echo "🚀 Starting Kings Choice Alliance Management..."
+        echo "📍 Access the application at: http://localhost:5002"
+        echo "🛑 Press Ctrl+C to stop the server"
+        echo ""
+        python3 run.py
+        ;;
+esac
