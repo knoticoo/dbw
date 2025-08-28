@@ -1,5 +1,5 @@
 """
-Database models and initialization for Kings Choice Alliance Management
+Database models and initialization for Dragon World Alliance Management
 SQLite3 database with comprehensive schema
 """
 
@@ -148,7 +148,7 @@ def init_db():
     cursor.execute('''
         INSERT OR IGNORE INTO guides (title, content, category, order_index)
         VALUES 
-        ('Getting Started', 'Welcome to Kings Choice Alliance Management! This tool helps you manage players, alliances, and events efficiently.', 'basics', 1),
+        ('Getting Started', 'Welcome to Dragon World Alliance Management! This tool helps you manage players, alliances, and events efficiently.', 'basics', 1),
         ('Managing Players', 'Add players to the system and assign them to alliances. Track their MVP history and performance.', 'players', 2),
         ('Event Management', 'Create events, assign MVPs, and track alliance winners. The system automatically rotates MVP assignments.', 'events', 3),
         ('Alliance System', 'Manage alliances, track wins, and maintain blacklists for problematic alliances.', 'alliances', 4),

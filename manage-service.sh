@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Kings Choice Alliance Management - Service Management Script
+# Dragon World Alliance Management - Service Management Script
 
 SERVICE_NAME="kings-choice-alliance"
 
@@ -57,7 +57,7 @@ case "$1" in
         echo "✅ Service uninstalled"
         ;;
     *)
-        echo "Kings Choice Alliance Management - Service Manager"
+        echo "Dragon World Alliance Management - Service Manager"
         echo "Usage: $0 {start|stop|restart|status|logs|enable|disable|install|uninstall}"
         echo ""
         echo "Commands:"

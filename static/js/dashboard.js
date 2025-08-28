@@ -1,5 +1,5 @@
 /**
- * Kings Choice Alliance Management - Dashboard JavaScript
+ * Dragon World - Dashboard JavaScript
  * Handles all dashboard functionality
  */
 

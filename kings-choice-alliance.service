@@ -1,5 +1,5 @@
 [Unit]
-Description=Kings Choice Alliance Management Web Application
+Description=Dragon World Alliance Management Web Application
 After=network.target
 
 [Service]

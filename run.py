@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Kings Choice Alliance Management - Startup Script
+Dragon World Alliance Management - Startup Script
 Run this script to start the application
 """
 
@@ -9,7 +9,7 @@ from app import create_app
 if __name__ == '__main__':
     app = create_app()
     print("=" * 60)
-    print("🏰 Kings Choice Alliance Management System")
+    print("🐉 Dragon World Alliance Management System")
     print("=" * 60)
     print("📊 Features Available:")
     print("  • Player Management")
