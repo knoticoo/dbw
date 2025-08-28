@@ -2,8 +2,67 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>{% block title %}Dragon World{% endblock %}</title>
+    
+    <!-- Mobile and PWA Meta Tags -->
+    <meta name="description" content="Master your alliances, track your victories, and dominate the realm with strategic precision in Dragon World Alliance Manager.">
+    <meta name="keywords" content="dragon world, alliance, management, strategy, game, mobile">
+    <meta name="author" content="Dragon World Alliance Manager">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Mobile Optimizations -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="DragonWorld">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    
+    <!-- Theme Colors -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="msapplication-navbutton-color" content="#667eea">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    
+    <!-- Favicon and App Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='icons/icon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='icons/icon-16x16.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='icons/icon-192x192.png') }}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{{ url_for('static', filename='icons/icon-152x152.png') }}">
+    <link rel="apple-touch-icon" sizes="144x144" href="{{ url_for('static', filename='icons/icon-144x144.png') }}">
+    <link rel="apple-touch-icon" sizes="120x120" href="{{ url_for('static', filename='icons/icon-128x128.png') }}">
+    <link rel="apple-touch-icon" sizes="114x114" href="{{ url_for('static', filename='icons/icon-128x128.png') }}">
+    <link rel="apple-touch-icon" sizes="76x76" href="{{ url_for('static', filename='icons/icon-72x72.png') }}">
+    <link rel="apple-touch-icon" sizes="72x72" href="{{ url_for('static', filename='icons/icon-72x72.png') }}">
+    <link rel="apple-touch-icon" sizes="60x60" href="{{ url_for('static', filename='icons/icon-72x72.png') }}">
+    <link rel="apple-touch-icon" sizes="57x57" href="{{ url_for('static', filename='icons/icon-72x72.png') }}">
+    
+    <!-- Microsoft Tiles -->
+    <meta name="msapplication-TileImage" content="{{ url_for('static', filename='icons/icon-144x144.png') }}">
+    <meta name="msapplication-TileColor" content="#667eea">
+    <meta name="msapplication-config" content="{{ url_for('static', filename='browserconfig.xml') }}">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{% block og_title %}Dragon World Alliance Manager{% endblock %}">
+    <meta property="og:description" content="Master your alliances, track your victories, and dominate the realm with strategic precision.">
+    <meta property="og:image" content="{{ url_for('static', filename='icons/icon-512x512.png', _external=True) }}">
+    <meta property="og:url" content="{{ request.url }}">
+    <meta property="og:site_name" content="Dragon World Alliance Manager">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}Dragon World Alliance Manager{% endblock %}">
+    <meta name="twitter:description" content="Master your alliances, track your victories, and dominate the realm with strategic precision.">
+    <meta name="twitter:image" content="{{ url_for('static', filename='icons/icon-512x512.png', _external=True) }}">
+    
+    <!-- Preconnect for Performance -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://code.jquery.com">
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -15,6 +74,11 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <!-- Network Status Indicator -->
+    <div id="network-status" class="d-none position-fixed top-0 start-0 end-0 bg-warning text-dark text-center py-2" style="z-index: 1060;">
+        <small><i class="fas fa-wifi-slash me-1"></i>You're offline - Some features may be limited</small>
+    </div>
+    
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
@@ -23,7 +87,7 @@
                 Dragon World
             </a>
             
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             
@@ -35,19 +99,21 @@
                         </a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-cog me-1"></i>Management
                         </a>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="#" onclick="showSection('players')">
                                 <i class="fas fa-users me-2"></i>Players
                             </a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="#" onclick="showSection('alliances')">
                                 <i class="fas fa-shield-alt me-2"></i>Alliances
                             </a></li>
                             <li><a class="dropdown-item" href="#" onclick="showSection('events')">
                                 <i class="fas fa-calendar-alt me-2"></i>Events
                             </a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="#" onclick="showSection('mvp')">
                                 <i class="fas fa-trophy me-2"></i>MVP System
                             </a></li>
@@ -57,6 +123,15 @@
                         <a class="nav-link" href="{{ url_for('guides.guides_page') }}">
                             <i class="fas fa-book me-1"></i>Guides
                         </a>
+                    </li>
+                    <li class="nav-item d-lg-none">
+                        <hr class="text-white-50 my-2">
+                    </li>
+                    <li class="nav-item d-lg-none">
+                        <div class="nav-link text-white-50 small">
+                            <i class="fas fa-info-circle me-1"></i>
+                            <span id="mobile-app-status">Web App</span>
+                        </div>
                     </li>
                 </ul>
             </div>
@@ -84,6 +159,145 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    
+    <!-- PWA Install Banner -->
+    <div id="pwa-install-banner" class="d-none position-fixed bottom-0 start-0 end-0 bg-primary text-white p-3 shadow-lg" style="z-index: 1050;">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-8">
+                    <small><strong>Install Dragon World</strong></small>
+                    <div class="small">Add to your home screen for quick access!</div>
+                </div>
+                <div class="col-4 text-end">
+                    <button id="pwa-install-btn" class="btn btn-light btn-sm me-2">Install</button>
+                    <button id="pwa-dismiss-btn" class="btn btn-outline-light btn-sm">&times;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New version available
+                                    if (confirm('A new version is available! Reload to update?')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+        
+        // PWA Install Prompt
+        let deferredPrompt;
+        const installBanner = document.getElementById('pwa-install-banner');
+        const installBtn = document.getElementById('pwa-install-btn');
+        const dismissBtn = document.getElementById('pwa-dismiss-btn');
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            deferredPrompt = e;
+            
+            // Check if user has dismissed before
+            if (!localStorage.getItem('pwa-dismissed')) {
+                // Show the install banner
+                installBanner.classList.remove('d-none');
+            }
+        });
+        
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) return;
+            
+            // Show the install prompt
+            deferredPrompt.prompt();
+            
+            // Wait for the user to respond to the prompt
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`User response to the install prompt: ${outcome}`);
+            
+            // Clear the deferredPrompt
+            deferredPrompt = null;
+            
+            // Hide the banner
+            installBanner.classList.add('d-none');
+        });
+        
+        dismissBtn.addEventListener('click', () => {
+            installBanner.classList.add('d-none');
+            localStorage.setItem('pwa-dismissed', 'true');
+            
+            // Show again after 7 days
+            setTimeout(() => {
+                localStorage.removeItem('pwa-dismissed');
+            }, 7 * 24 * 60 * 60 * 1000);
+        });
+        
+        // Handle successful installation
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('PWA was installed successfully');
+            installBanner.classList.add('d-none');
+            
+            // Show success message
+            if (typeof showToast === 'function') {
+                showToast('App installed successfully!', 'success');
+            }
+        });
+        
+        // Detect if running as PWA
+        function isPWA() {
+            return window.matchMedia('(display-mode: standalone)').matches ||
+                   window.navigator.standalone ||
+                   document.referrer.includes('android-app://');
+        }
+        
+        // Add PWA class to body if running as PWA
+        if (isPWA()) {
+            document.body.classList.add('pwa-mode');
+            console.log('Running as PWA');
+            
+            // Update mobile status indicator
+            const statusElement = document.getElementById('mobile-app-status');
+            if (statusElement) {
+                statusElement.textContent = 'PWA Mode';
+                statusElement.parentElement.classList.remove('text-white-50');
+                statusElement.parentElement.classList.add('text-success');
+            }
+        }
+        
+        // Handle online/offline status
+        function updateOnlineStatus() {
+            const statusIndicator = document.getElementById('network-status');
+            if (navigator.onLine) {
+                document.body.classList.remove('offline');
+                if (statusIndicator) statusIndicator.classList.add('d-none');
+            } else {
+                document.body.classList.add('offline');
+                if (statusIndicator) statusIndicator.classList.remove('d-none');
+            }
+        }
+        
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus(); // Check initial status
+    </script>
     
     {% block extra_js %}{% endblock %}
 </body>
