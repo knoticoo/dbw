@@ -7,7 +7,7 @@ import sqlite3
 import os
 from datetime import datetime
 
-DATABASE_PATH = '/workspace/alliance_management.db'
+DATABASE_PATH = 'alliance_management.db'
 
 def get_db_connection():
     """Get database connection with row factory"""
