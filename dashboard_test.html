@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Kings Choice Alliance Management</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="/static/css/style.css" rel="stylesheet">
+    
+    
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-crown me-2"></i>
+                Kings Choice Alliance Manager
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/dashboard">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog me-1"></i>Management
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="showSection('players')">
+                                <i class="fas fa-users me-2"></i>Players
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="showSection('alliances')">
+                                <i class="fas fa-shield-alt me-2"></i>Alliances
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="showSection('events')">
+                                <i class="fas fa-calendar-alt me-2"></i>Events
+                            </a></li>
+                            <li><a class="dropdown-item" href="#" onclick="showSection('mvp')">
+                                <i class="fas fa-trophy me-2"></i>MVP System
+                            </a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/guides/">
+                            <i class="fas fa-book me-1"></i>Guides
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mt-4">
+        
+<div class="row mb-4">
+    <div class="col-12">
+        <h1><i class="fas fa-tachometer-alt me-2"></i>Alliance Management Dashboard</h1>
+        <p class="text-muted">Manage your Kings Choice alliance operations from this central hub.</p>
+    </div>
+</div>
+
+<!-- Section Navigation -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="btn-group w-100" role="group">
+            <button type="button" class="btn btn-primary active" onclick="showSection('players')">
+                <i class="fas fa-users me-1"></i>Players
+            </button>
+            <button type="button" class="btn btn-outline-primary" onclick="showSection('alliances')">
+                <i class="fas fa-shield-alt me-1"></i>Alliances
+            </button>
+            <button type="button" class="btn btn-outline-primary" onclick="showSection('events')">
+                <i class="fas fa-calendar-alt me-1"></i>Events
+            </button>
+            <button type="button" class="btn btn-outline-primary" onclick="showSection('mvp')">
+                <i class="fas fa-trophy me-1"></i>MVP System
+            </button>
+            <button type="button" class="btn btn-outline-primary" onclick="showSection('guides')">
+                <i class="fas fa-book me-1"></i>Guides
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Players Section -->
+<div id="players-section" class="section-content">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <h3><i class="fas fa-users me-2"></i>Players Management</h3>
+        </div>
+        <div class="col-md-6 text-end">
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPlayerModal">
+                <i class="fas fa-plus me-1"></i>Add Player
+            </button>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Alliance</th>
+                            <th>MVP Count</th>
+                            <th>Last MVP</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="players-table-body">
+                        <tr>
+                            <td colspan="6" class="text-center">
+                                <i class="fas fa-spinner fa-spin"></i> Loading...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alliances Section -->
+<div id="alliances-section" class="section-content" style="display: none;">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <h3><i class="fas fa-shield-alt me-2"></i>Alliances Management</h3>
+        </div>
+        <div class="col-md-6 text-end">
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addAllianceModal">
+                <i class="fas fa-plus me-1"></i>Add Alliance
+            </button>
+        </div>
+    </div>
+    
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="showBlacklisted" onchange="loadAlliances()">
+                <label class="form-check-label" for="showBlacklisted">
+                    Show Blacklisted Alliances
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Tag</th>
+                            <th>Members</th>
+                            <th>Wins</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alliances-table-body">
+                        <tr>
+                            <td colspan="6" class="text-center">
+                                <i class="fas fa-spinner fa-spin"></i> Loading...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Events Section -->
+<div id="events-section" class="section-content" style="display: none;">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <h3><i class="fas fa-calendar-alt me-2"></i>Events Management</h3>
+        </div>
+        <div class="col-md-6 text-end">
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                <i class="fas fa-plus me-1"></i>Add Event
+            </button>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>MVP</th>
+                            <th>Winner</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="events-table-body">
+                        <tr>
+                            <td colspan="6" class="text-center">
+                                <i class="fas fa-spinner fa-spin"></i> Loading...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MVP Section -->
+<div id="mvp-section" class="section-content" style="display: none;">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <h3><i class="fas fa-trophy me-2"></i>MVP System</h3>
+        </div>
+        <div class="col-md-6 text-end">
+            <button class="btn btn-warning" onclick="resetMVPRotation()">
+                <i class="fas fa-redo me-1"></i>Reset Rotation
+            </button>
+        </div>
+    </div>
+    
+    <!-- MVP Rotation Status -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5><i class="fas fa-info-circle me-2"></i>Rotation Status</h5>
+                    <div id="mvp-status">
+                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- MVP Candidates -->
+    <div class="row">
+        <div class="col-12">
+            <h4>Next MVP Candidates</h4>
+            <div class="card">
+                <div class="card-body">
+                    <div id="mvp-candidates">
+                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Guides Section -->
+<div id="guides-section" class="section-content" style="display: none;">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <h3><i class="fas fa-book me-2"></i>Guides Management</h3>
+        </div>
+        <div class="col-md-6 text-end">
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addGuideModal">
+                <i class="fas fa-plus me-1"></i>Add Guide
+            </button>
+        </div>
+    </div>
+    
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <select class="form-select" id="guideCategoryFilter" onchange="loadGuides()">
+                <option value="">All Categories</option>
+                <option value="general">General</option>
+                <option value="strategy">Strategy</option>
+                <option value="mechanics">Game Mechanics</option>
+                <option value="alliance">Alliance Management</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Order</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="guides-table-body">
+                        <tr>
+                            <td colspan="5" class="text-center">
+                                <i class="fas fa-spinner fa-spin"></i> Loading...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<!-- Add Player Modal -->
+<div class="modal fade" id="addPlayerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus me-2"></i>Add New Player
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addPlayerForm">
+                    <div class="mb-3">
+                        <label for="playerName" class="form-label">Player Name *</label>
+                        <input type="text" class="form-control" id="playerName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="playerAlliance" class="form-label">Alliance</label>
+                        <select class="form-select" id="playerAlliance">
+                            <option value="">Select Alliance (Optional)</option>
+                        </select>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="addPlayer()">
+                    <i class="fas fa-save me-1"></i>Add Player
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Player Modal -->
+<div class="modal fade" id="editPlayerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-edit me-2"></i>Edit Player
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editPlayerForm">
+                    <input type="hidden" id="editPlayerId">
+                    <div class="mb-3">
+                        <label for="editPlayerName" class="form-label">Player Name *</label>
+                        <input type="text" class="form-control" id="editPlayerName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editPlayerAlliance" class="form-label">Alliance</label>
+                        <select class="form-select" id="editPlayerAlliance">
+                            <option value="">Select Alliance (Optional)</option>
+                        </select>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="updatePlayer()">
+                    <i class="fas fa-save me-1"></i>Update Player
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Add Alliance Modal -->
+<div class="modal fade" id="addAllianceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-shield-alt me-2"></i>Add New Alliance
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addAllianceForm">
+                    <div class="mb-3">
+                        <label for="allianceName" class="form-label">Alliance Name *</label>
+                        <input type="text" class="form-control" id="allianceName" required 
+                               placeholder="Enter the alliance name">
+                    </div>
+                    <div class="mb-3">
+                        <label for="allianceTag" class="form-label">Alliance Tag <small class="text-muted">(Optional)</small></label>
+                        <input type="text" class="form-control" id="allianceTag" placeholder="e.g., [TAG]">
+                    </div>
+                    <div class="mb-3">
+                        <label for="allianceDescription" class="form-label">Description <small class="text-muted">(Optional)</small></label>
+                        <textarea class="form-control" id="allianceDescription" rows="2" 
+                                  placeholder="Brief description of the alliance"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="allianceBlacklisted">
+                            <label class="form-check-label text-danger" for="allianceBlacklisted">
+                                <i class="fas fa-ban me-1"></i>Blacklisted Alliance
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="addAlliance()">
+                    <i class="fas fa-save me-1"></i>Add Alliance
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Alliance Modal -->
+<div class="modal fade" id="editAllianceModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-shield-alt me-2"></i>Edit Alliance
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editAllianceForm">
+                    <input type="hidden" id="editAllianceId">
+                    <div class="mb-3">
+                        <label for="editAllianceName" class="form-label">Alliance Name *</label>
+                        <input type="text" class="form-control" id="editAllianceName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editAllianceTag" class="form-label">Alliance Tag</label>
+                        <input type="text" class="form-control" id="editAllianceTag" placeholder="e.g., [TAG]">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editAllianceDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editAllianceDescription" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="editAllianceBlacklisted">
+                            <label class="form-check-label text-danger" for="editAllianceBlacklisted">
+                                <i class="fas fa-ban me-1"></i>Blacklisted Alliance
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="updateAlliance()">
+                    <i class="fas fa-save me-1"></i>Update Alliance
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Add Event Modal -->
+<div class="modal fade" id="addEventModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-calendar-plus me-2"></i>Add New Event
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addEventForm">
+                    <div class="mb-3">
+                        <label for="eventName" class="form-label">Event Name *</label>
+                        <input type="text" class="form-control" id="eventName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventDate" class="form-label">Event Date *</label>
+                        <input type="date" class="form-control" id="eventDate" required>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="addEvent()">
+                    <i class="fas fa-save me-1"></i>Add Event
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Event Modal -->
+<div class="modal fade" id="editEventModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-calendar-alt me-2"></i>Edit Event
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editEventForm">
+                    <input type="hidden" id="editEventId">
+                    <div class="mb-3">
+                        <label for="editEventName" class="form-label">Event Name *</label>
+                        <input type="text" class="form-control" id="editEventName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEventDate" class="form-label">Event Date *</label>
+                        <input type="date" class="form-control" id="editEventDate" required>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="updateEvent()">
+                    <i class="fas fa-save me-1"></i>Update Event
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assign MVP Modal -->
+<div class="modal fade" id="assignMVPModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-trophy me-2"></i>Assign MVP
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="assignMVPForm">
+                    <input type="hidden" id="mvpEventId">
+                    <div class="mb-3">
+                        <label for="mvpEventName" class="form-label">Event</label>
+                        <input type="text" class="form-control" id="mvpEventName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="mvpPlayer" class="form-label">Select MVP Player *</label>
+                        <select class="form-select" id="mvpPlayer" required>
+                            <option value="">Choose player...</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="mvpType" class="form-label">MVP Type *</label>
+                        <select class="form-select" id="mvpType" required>
+                            <option value="">Choose MVP type...</option>
+                        </select>
+                        <div class="form-text">Higher MVP types award more points to the player.</div>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>MVP Rotation:</strong> Players who haven't been MVP recently are prioritized.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" onclick="assignEventMVP()">
+                    <i class="fas fa-trophy me-1"></i>Assign MVP
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assign Winner Modal -->
+<div class="modal fade" id="assignWinnerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-crown me-2"></i>Assign Winner
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="assignWinnerForm">
+                    <input type="hidden" id="winnerEventId">
+                    <div class="mb-3">
+                        <label for="winnerEventName" class="form-label">Event</label>
+                        <input type="text" class="form-control" id="winnerEventName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="winnerAlliance" class="form-label">Select Winner Alliance *</label>
+                        <select class="form-select" id="winnerAlliance" required>
+                            <option value="">Choose alliance...</option>
+                        </select>
+                    </div>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Note:</strong> Only non-blacklisted alliances can be assigned as winners.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="assignEventWinner()">
+                    <i class="fas fa-crown me-1"></i>Assign Winner
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- MVP Details Modal -->
+<div class="modal fade" id="mvpDetailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-trophy me-2"></i>MVP System Details
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-info-circle me-2"></i>Current Rotation Status</h6>
+                        <div id="mvpRotationDetails">
+                            <i class="fas fa-spinner fa-spin"></i> Loading...
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-chart-bar me-2"></i>MVP Statistics</h6>
+                        <div id="mvpStatistics">
+                            <i class="fas fa-spinner fa-spin"></i> Loading...
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="row">
+                    <div class="col-12">
+                        <h6><i class="fas fa-history me-2"></i>Recent MVP History</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Event</th>
+                                        <th>MVP Player</th>
+                                        <th>Alliance</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mvpHistoryTable">
+                                    <tr>
+                                        <td colspan="4" class="text-center">
+                                            <i class="fas fa-spinner fa-spin"></i> Loading...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-warning" onclick="resetMVPRotation()">
+                    <i class="fas fa-redo me-1"></i>Reset Rotation
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Add Guide Modal -->
+<div class="modal fade" id="addGuideModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-book-plus me-2"></i>Add New Guide
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addGuideForm">
+                    <div class="mb-3">
+                        <label for="guideTitle" class="form-label">Guide Title *</label>
+                        <input type="text" class="form-control" id="guideTitle" required>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="guideCategory" class="form-label">Category *</label>
+                            <select class="form-select" id="guideCategory" required>
+                                <option value="">Select Category</option>
+                                <option value="general">General</option>
+                                <option value="strategy">Strategy</option>
+                                <option value="mechanics">Game Mechanics</option>
+                                <option value="alliance">Alliance Management</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="guideOrder" class="form-label">Display Order</label>
+                            <input type="number" class="form-control" id="guideOrder" value="0" min="0">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="guideContent" class="form-label">Guide Content *</label>
+                        <textarea class="form-control" id="guideContent" rows="8" required 
+                                  placeholder="Write your guide content here. You can use HTML formatting."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="guideImages" class="form-label">Images <small class="text-muted">(Optional)</small></label>
+                        <input type="file" class="form-control" id="guideImages" multiple accept="image/*">
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Upload images (PNG, JPG, GIF, WebP). Max 5MB per file.
+                        </div>
+                        <div id="imagePreview" class="mt-2 row"></div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="guidePublished" checked>
+                            <label class="form-check-label" for="guidePublished">
+                                Published (visible to users)
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="addGuide()">
+                    <i class="fas fa-save me-1"></i>Add Guide
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Guide Modal -->
+<div class="modal fade" id="editGuideModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-book-open me-2"></i>Edit Guide
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editGuideForm">
+                    <input type="hidden" id="editGuideId">
+                    <div class="mb-3">
+                        <label for="editGuideTitle" class="form-label">Guide Title *</label>
+                        <input type="text" class="form-control" id="editGuideTitle" required>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="editGuideCategory" class="form-label">Category *</label>
+                            <select class="form-select" id="editGuideCategory" required>
+                                <option value="">Select Category</option>
+                                <option value="general">General</option>
+                                <option value="strategy">Strategy</option>
+                                <option value="mechanics">Game Mechanics</option>
+                                <option value="alliance">Alliance Management</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editGuideOrder" class="form-label">Display Order</label>
+                            <input type="number" class="form-control" id="editGuideOrder" value="0" min="0">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editGuideContent" class="form-label">Guide Content *</label>
+                        <textarea class="form-control" id="editGuideContent" rows="8" required 
+                                  placeholder="Write your guide content here. You can use HTML formatting."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editGuideImages" class="form-label">Images <small class="text-muted">(Optional)</small></label>
+                        <input type="file" class="form-control" id="editGuideImages" multiple accept="image/*">
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Upload new images or keep existing ones. Max 5MB per file.
+                        </div>
+                        <div id="editImagePreview" class="mt-2 row"></div>
+                        <div id="existingImages" class="mt-2"></div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="editGuidePublished">
+                            <label class="form-check-label" for="editGuidePublished">
+                                Published (visible to users)
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="updateGuide()">
+                    <i class="fas fa-save me-1"></i>Update Guide
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-light mt-5 py-4">
+        <div class="container text-center">
+            <p class="mb-0 text-muted">
+                <i class="fas fa-crown me-1"></i>
+                Kings Choice Alliance Management System - Built for strategic dominance
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Custom JS -->
+    <script src="/static/js/app.js"></script>
+    
+    
+<script src="/static/js/dashboard.js"></script>
+
+</body>
+</html>

@@ -105,7 +105,7 @@ function displayPlayers(players) {
                         <button class="btn btn-sm btn-outline-primary" onclick="editPlayer(${player.id})" title="Edit">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deletePlayer(${player.id}, '${player.name}')" title="Delete">
+                        <button class="btn btn-sm btn-outline-danger" onclick="deletePlayer(${player.id}, '${escapeJsString(player.name)}')" title="Delete">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -306,14 +306,14 @@ function displayAlliances(alliances) {
                             <i class="fas fa-edit"></i>
                         </button>
                         ${alliance.is_blacklisted ? 
-                            `<button class="btn btn-sm btn-outline-success" onclick="whitelistAlliance(${alliance.id}, '${alliance.name}')" title="Remove from Blacklist">
+                            `<button class="btn btn-sm btn-outline-success" onclick="whitelistAlliance(${alliance.id}, '${escapeJsString(alliance.name)}')" title="Remove from Blacklist">
                                 <i class="fas fa-check"></i>
                             </button>` :
-                            `<button class="btn btn-sm btn-outline-warning" onclick="blacklistAlliance(${alliance.id}, '${alliance.name}')" title="Add to Blacklist">
+                            `<button class="btn btn-sm btn-outline-warning" onclick="blacklistAlliance(${alliance.id}, '${escapeJsString(alliance.name)}')" title="Add to Blacklist">
                                 <i class="fas fa-ban"></i>
                             </button>`
                         }
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteAlliance(${alliance.id}, '${alliance.name}')" title="Delete">
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteAlliance(${alliance.id}, '${escapeJsString(alliance.name)}')" title="Delete">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -492,13 +492,13 @@ function displayEvents(events) {
                         <button class="btn btn-sm btn-outline-primary" onclick="editEvent(${event.id})" title="Edit">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-warning" onclick="assignMVP(${event.id}, '${event.name}')" title="Assign MVP">
+                        <button class="btn btn-sm btn-outline-warning" onclick="assignMVP(${event.id}, '${escapeJsString(event.name)}')" title="Assign MVP">
                             <i class="fas fa-trophy"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-success" onclick="assignWinner(${event.id}, '${event.name}')" title="Assign Winner">
+                        <button class="btn btn-sm btn-outline-success" onclick="assignWinner(${event.id}, '${escapeJsString(event.name)}')" title="Assign Winner">
                             <i class="fas fa-crown"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteEvent(${event.id}, '${event.name}')" title="Delete">
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteEvent(${event.id}, '${escapeJsString(event.name)}')" title="Delete">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -843,7 +843,7 @@ function displayGuides(guides) {
                         <button class="btn btn-sm btn-outline-primary" onclick="editGuide(${guide.id})" title="Edit">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteGuide(${guide.id}, '${guide.title}')" title="Delete">
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteGuide(${guide.id}, '${escapeJsString(guide.title)}')" title="Delete">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -1075,6 +1075,11 @@ function clearGuideForm(type) {
 }
 
 // Helper Functions
+function escapeJsString(str) {
+    if (!str) return '';
+    return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+}
+
 function loadAllianceOptions(selectId = 'playerAlliance') {
     const eligibleAlliances = allAlliances.filter(a => !a.is_blacklisted);
     let html = '<option value="">Select Alliance (Optional)</option>';
