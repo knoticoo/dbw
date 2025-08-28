@@ -280,6 +280,10 @@ function loadAlliances() {
         .catch(error => {
             handleApiError(error, 'Failed to load alliances');
             $('#alliances-table-body').html('<tr><td colspan="6" class="text-center text-danger">Failed to load alliances</td></tr>');
+        })
+        .finally(() => {
+            // Always clear loading state
+            setLoadingState('alliances-table-body', false);
         });
 }
 
@@ -467,6 +471,10 @@ function loadEvents() {
         .catch(error => {
             handleApiError(error, 'Failed to load events');
             $('#events-table-body').html('<tr><td colspan="6" class="text-center text-danger">Failed to load events</td></tr>');
+        })
+        .finally(() => {
+            // Always clear loading state
+            setLoadingState('events-table-body', false);
         });
 }
 
@@ -752,6 +760,7 @@ function loadMVPStatus() {
         })
         .catch(error => {
             handleApiError(error, 'Failed to load MVP status');
+            $('#mvp-status').html('<div class="alert alert-danger">Failed to load MVP status</div>');
         });
 }
 
@@ -791,6 +800,7 @@ function loadMVPCandidates() {
         })
         .catch(error => {
             handleApiError(error, 'Failed to load MVP candidates');
+            $('#mvp-candidates').html('<div class="alert alert-danger">Failed to load MVP candidates</div>');
         });
 }
 
@@ -827,6 +837,10 @@ function loadGuides() {
         .catch(error => {
             handleApiError(error, 'Failed to load guides');
             $('#guides-table-body').html('<tr><td colspan="5" class="text-center text-danger">Failed to load guides</td></tr>');
+        })
+        .finally(() => {
+            // Always clear loading state
+            setLoadingState('guides-table-body', false);
         });
 }
 
