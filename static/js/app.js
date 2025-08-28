@@ -165,6 +165,30 @@ function setLoadingState(elementId, isLoading = true) {
     }
 }
 
+// Button Loading State Management
+function setButtonLoading(buttonSelector, isLoading = true, originalText = '') {
+    const $button = $(buttonSelector);
+    
+    if (isLoading) {
+        // Store original text if not provided
+        if (!originalText) {
+            originalText = $button.data('original-text') || $button.html();
+            $button.data('original-text', originalText);
+        }
+        
+        // Set loading state
+        $button.prop('disabled', true);
+        $button.html('<i class="fas fa-spinner fa-spin me-1"></i>Loading...');
+        $button.addClass('loading');
+    } else {
+        // Restore original state
+        const storedText = $button.data('original-text') || originalText;
+        $button.prop('disabled', false);
+        $button.html(storedText);
+        $button.removeClass('loading');
+    }
+}
+
 // Form Validation
 function validateForm(formId) {
     const form = document.getElementById(formId);

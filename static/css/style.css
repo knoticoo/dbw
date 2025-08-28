@@ -459,3 +459,19 @@ footer {
 .custom-scroll::-webkit-scrollbar-thumb:hover {
     background: var(--secondary-color);
 }
+
+/* Loading Button Styles */
+.btn.loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.btn.loading .fa-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
