@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Kings Choice Alliance Management{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1><i class="fas fa-tachometer-alt me-2"></i>Alliance Management Dashboard</h1>
+        <p class="text-muted">Manage your Kings Choice alliance operations from this central hub.</p>
+    </div>
+</div>
+
+<!-- Section Navigation -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="btn-group w-100" role="group">
+            <button type="button" class="btn btn-primary active" onclick="showSection('players')">
+                <i class="fas fa-users me-1"></i>Players
+            </button>
+            <button type="button" class="btn btn-outline-primary" onclick="showSection('alliances')">
+                <i class="fas fa-shield-alt me-1"></i>Alliances
+            </button>
+            <button type="button" class="btn btn-outline-primary" onclick="showSection('events')">
+                <i class="fas fa-calendar-alt me-1"></i>Events
+            </button>
+            <button type="button" class="btn btn-outline-primary" onclick="showSection('mvp')">
+                <i class="fas fa-trophy me-1"></i>MVP System
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Players Section -->
+<div id="players-section" class="section-content">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <h3><i class="fas fa-users me-2"></i>Players Management</h3>
+        </div>
+        <div class="col-md-6 text-end">
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addPlayerModal">
+                <i class="fas fa-plus me-1"></i>Add Player
+            </button>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Alliance</th>
+                            <th>MVP Count</th>
+                            <th>Last MVP</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="players-table-body">
+                        <tr>
+                            <td colspan="6" class="text-center">
+                                <i class="fas fa-spinner fa-spin"></i> Loading...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Alliances Section -->
+<div id="alliances-section" class="section-content" style="display: none;">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <h3><i class="fas fa-shield-alt me-2"></i>Alliances Management</h3>
+        </div>
+        <div class="col-md-6 text-end">
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addAllianceModal">
+                <i class="fas fa-plus me-1"></i>Add Alliance
+            </button>
+        </div>
+    </div>
+    
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="showBlacklisted" onchange="loadAlliances()">
+                <label class="form-check-label" for="showBlacklisted">
+                    Show Blacklisted Alliances
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Tag</th>
+                            <th>Members</th>
+                            <th>Wins</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alliances-table-body">
+                        <tr>
+                            <td colspan="6" class="text-center">
+                                <i class="fas fa-spinner fa-spin"></i> Loading...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Events Section -->
+<div id="events-section" class="section-content" style="display: none;">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <h3><i class="fas fa-calendar-alt me-2"></i>Events Management</h3>
+        </div>
+        <div class="col-md-6 text-end">
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                <i class="fas fa-plus me-1"></i>Add Event
+            </button>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>MVP</th>
+                            <th>Winner</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="events-table-body">
+                        <tr>
+                            <td colspan="6" class="text-center">
+                                <i class="fas fa-spinner fa-spin"></i> Loading...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MVP Section -->
+<div id="mvp-section" class="section-content" style="display: none;">
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <h3><i class="fas fa-trophy me-2"></i>MVP System</h3>
+        </div>
+        <div class="col-md-6 text-end">
+            <button class="btn btn-warning" onclick="resetMVPRotation()">
+                <i class="fas fa-redo me-1"></i>Reset Rotation
+            </button>
+        </div>
+    </div>
+    
+    <!-- MVP Rotation Status -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h5><i class="fas fa-info-circle me-2"></i>Rotation Status</h5>
+                    <div id="mvp-status">
+                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- MVP Candidates -->
+    <div class="row">
+        <div class="col-12">
+            <h4>Next MVP Candidates</h4>
+            <div class="card">
+                <div class="card-body">
+                    <div id="mvp-candidates">
+                        <i class="fas fa-spinner fa-spin"></i> Loading...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+{% include 'modals/player_modal.html' %}
+{% include 'modals/alliance_modal.html' %}
+{% include 'modals/event_modal.html' %}
+{% include 'modals/mvp_modal.html' %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

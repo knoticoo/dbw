@@ -1,0 +1,166 @@
+<!-- Add Event Modal -->
+<div class="modal fade" id="addEventModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-calendar-plus me-2"></i>Add New Event
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addEventForm">
+                    <div class="mb-3">
+                        <label for="eventName" class="form-label">Event Name *</label>
+                        <input type="text" class="form-control" id="eventName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventDate" class="form-label">Event Date *</label>
+                        <input type="date" class="form-control" id="eventDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="eventDescription" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventStatus" class="form-label">Status</label>
+                        <select class="form-select" id="eventStatus">
+                            <option value="upcoming">Upcoming</option>
+                            <option value="ongoing">Ongoing</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="addEvent()">
+                    <i class="fas fa-save me-1"></i>Add Event
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Event Modal -->
+<div class="modal fade" id="editEventModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-calendar-alt me-2"></i>Edit Event
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editEventForm">
+                    <input type="hidden" id="editEventId">
+                    <div class="mb-3">
+                        <label for="editEventName" class="form-label">Event Name *</label>
+                        <input type="text" class="form-control" id="editEventName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEventDate" class="form-label">Event Date *</label>
+                        <input type="date" class="form-control" id="editEventDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEventDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editEventDescription" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEventStatus" class="form-label">Status</label>
+                        <select class="form-select" id="editEventStatus">
+                            <option value="upcoming">Upcoming</option>
+                            <option value="ongoing">Ongoing</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="updateEvent()">
+                    <i class="fas fa-save me-1"></i>Update Event
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assign MVP Modal -->
+<div class="modal fade" id="assignMVPModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-trophy me-2"></i>Assign MVP
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="assignMVPForm">
+                    <input type="hidden" id="mvpEventId">
+                    <div class="mb-3">
+                        <label for="mvpEventName" class="form-label">Event</label>
+                        <input type="text" class="form-control" id="mvpEventName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="mvpPlayer" class="form-label">Select MVP Player *</label>
+                        <select class="form-select" id="mvpPlayer" required>
+                            <option value="">Choose player...</option>
+                        </select>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>MVP Rotation:</strong> Players who haven't been MVP recently are prioritized.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" onclick="assignEventMVP()">
+                    <i class="fas fa-trophy me-1"></i>Assign MVP
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Assign Winner Modal -->
+<div class="modal fade" id="assignWinnerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-crown me-2"></i>Assign Winner
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="assignWinnerForm">
+                    <input type="hidden" id="winnerEventId">
+                    <div class="mb-3">
+                        <label for="winnerEventName" class="form-label">Event</label>
+                        <input type="text" class="form-control" id="winnerEventName" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="winnerAlliance" class="form-label">Select Winner Alliance *</label>
+                        <select class="form-select" id="winnerAlliance" required>
+                            <option value="">Choose alliance...</option>
+                        </select>
+                    </div>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Note:</strong> Only non-blacklisted alliances can be assigned as winners.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" onclick="assignEventWinner()">
+                    <i class="fas fa-crown me-1"></i>Assign Winner
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

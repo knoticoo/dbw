@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}Guides - Kings Choice Alliance Management{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h1><i class="fas fa-book me-2"></i>Kings Choice Alliance Management Guides</h1>
+        <p class="text-muted">Master the art of alliance management and strategic gameplay.</p>
+    </div>
+</div>
+
+<!-- Guide Categories -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="btn-group flex-wrap" role="group">
+            <button type="button" class="btn btn-outline-primary active" onclick="filterGuides('all')">
+                All Guides
+            </button>
+            <button type="button" class="btn btn-outline-primary" onclick="filterGuides('basics')">
+                Basics
+            </button>
+            <button type="button" class="btn btn-outline-primary" onclick="filterGuides('players')">
+                Players
+            </button>
+            <button type="button" class="btn btn-outline-primary" onclick="filterGuides('alliances')">
+                Alliances
+            </button>
+            <button type="button" class="btn btn-outline-primary" onclick="filterGuides('events')">
+                Events
+            </button>
+            <button type="button" class="btn btn-outline-primary" onclick="filterGuides('mvp')">
+                MVP System
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Guides Grid -->
+<div class="row" id="guides-container">
+    <div class="col-12 text-center">
+        <i class="fas fa-spinner fa-spin fa-2x"></i>
+        <p class="mt-2">Loading guides...</p>
+    </div>
+</div>
+
+<!-- Quick Reference Cards -->
+<div class="row mt-5">
+    <div class="col-12">
+        <h3><i class="fas fa-bolt me-2"></i>Quick Reference</h3>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-users me-2"></i>Player Management
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li><i class="fas fa-plus text-success me-2"></i>Add new players</li>
+                    <li><i class="fas fa-edit text-primary me-2"></i>Edit player details</li>
+                    <li><i class="fas fa-shield-alt text-info me-2"></i>Assign to alliances</li>
+                    <li><i class="fas fa-eye-slash text-warning me-2"></i>Deactivate players</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <i class="fas fa-shield-alt me-2"></i>Alliance Control
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li><i class="fas fa-plus text-success me-2"></i>Create alliances</li>
+                    <li><i class="fas fa-crown text-warning me-2"></i>Track victories</li>
+                    <li><i class="fas fa-ban text-danger me-2"></i>Blacklist management</li>
+                    <li><i class="fas fa-users text-info me-2"></i>Member tracking</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <i class="fas fa-trophy me-2"></i>MVP System
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li><i class="fas fa-sync text-primary me-2"></i>Auto rotation</li>
+                    <li><i class="fas fa-balance-scale text-success me-2"></i>Fair assignment</li>
+                    <li><i class="fas fa-history text-info me-2"></i>Track history</li>
+                    <li><i class="fas fa-redo text-warning me-2"></i>Reset cycles</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Game Strategy Tips -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h5><i class="fas fa-lightbulb me-2 text-warning"></i>Pro Tips</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <strong>Regular Updates:</strong> Keep player and alliance information current for accurate tracking.
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <strong>MVP Rotation:</strong> Trust the system - it ensures fairness automatically.
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <strong>Event Planning:</strong> Create events in advance to better organize competitions.
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <strong>Blacklist Management:</strong> Use blacklists strategically to maintain competitive integrity.
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <strong>Data Backup:</strong> The SQLite database contains all your valuable alliance data.
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                <strong>Performance Tracking:</strong> Use statistics to identify top performers and trends.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let allGuides = [];
+
+$(document).ready(function() {
+    loadGuides();
+});
+
+function loadGuides() {
+    $.get('/guides/api', function(data) {
+        allGuides = data;
+        displayGuides(data);
+    }).fail(function() {
+        $('#guides-container').html(`
+            <div class="col-12 text-center">
+                <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                <p class="mt-2">Failed to load guides. Please try again later.</p>
+            </div>
+        `);
+    });
+}
+
+function displayGuides(guides) {
+    let html = '';
+    
+    if (guides.length === 0) {
+        html = `
+            <div class="col-12 text-center">
+                <i class="fas fa-book-open fa-2x text-muted"></i>
+                <p class="mt-2 text-muted">No guides available in this category.</p>
+            </div>
+        `;
+    } else {
+        guides.forEach(function(guide) {
+            const categoryIcon = getCategoryIcon(guide.category);
+            html += `
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h6 class="mb-0">
+                                <i class="${categoryIcon} me-2"></i>
+                                ${guide.title}
+                            </h6>
+                            <small class="text-muted">${guide.category}</small>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">${guide.content.substring(0, 150)}${guide.content.length > 150 ? '...' : ''}</p>
+                        </div>
+                        <div class="card-footer">
+                            <button class="btn btn-outline-primary btn-sm" onclick="viewGuideDetails(${guide.id})">
+                                <i class="fas fa-eye me-1"></i>Read More
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+    }
+    
+    $('#guides-container').html(html);
+}
+
+function filterGuides(category) {
+    // Update active button
+    $('.btn-group .btn').removeClass('active');
+    event.target.classList.add('active');
+    
+    let filteredGuides = allGuides;
+    if (category !== 'all') {
+        filteredGuides = allGuides.filter(guide => guide.category === category);
+    }
+    
+    displayGuides(filteredGuides);
+}
+
+function getCategoryIcon(category) {
+    const icons = {
+        'basics': 'fas fa-book',
+        'players': 'fas fa-users',
+        'alliances': 'fas fa-shield-alt',
+        'events': 'fas fa-calendar-alt',
+        'mvp': 'fas fa-trophy',
+        'general': 'fas fa-info-circle'
+    };
+    return icons[category] || 'fas fa-file-text';
+}
+
+function viewGuideDetails(guideId) {
+    const guide = allGuides.find(g => g.id === guideId);
+    if (guide) {
+        // Create a modal to show full guide content
+        const modalHtml = `
+            <div class="modal fade" id="guideDetailModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="${getCategoryIcon(guide.category)} me-2"></i>
+                                ${guide.title}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <span class="badge bg-secondary">${guide.category}</span>
+                            </div>
+                            <div class="guide-content">
+                                ${guide.content.replace(/\n/g, '<br>')}
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Remove existing modal if any
+        $('#guideDetailModal').remove();
+        
+        // Add new modal to body
+        $('body').append(modalHtml);
+        
+        // Show modal
+        $('#guideDetailModal').modal('show');
+    }
+}
+</script>
+{% endblock %}
